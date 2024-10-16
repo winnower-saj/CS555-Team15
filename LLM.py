@@ -20,7 +20,7 @@ class VoiceAssistantLLM:
         self.memory = ConversationBufferMemory(memory_key="conversation_history", return_messages=True)
 
         # Define the system prompt for the assistant
-        assistant_prompt = 'You are a voice assistant. Have good conversations with the user and provide companionship. Answer any queries in 10 words maximum.'
+        assistant_prompt = 'You are a voice assistant. Have good conversations with the user and provide companionship. Keep your answers short and concise.'
         
         # prompt template 
         self.prompt_template = ChatPromptTemplate.from_messages([

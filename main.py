@@ -16,8 +16,8 @@ async def process_and_convert_to_speech(user_input: str):
 
     llm_response = voice_assistant.generate_response(user_input) 
 
-    print(f"LLM (response): {llm_response}")
-    print("Converting LLM response to speech...")
+    # print(f"LLM (response): {llm_response}")
+    # print("Converting LLM response to speech...")
     await asyncio.to_thread(text_to_speech_stream, llm_response) 
 
     # Resume the microphone after TTS
@@ -27,7 +27,6 @@ async def listen_for_speech_and_process(stop_event):
 
     def callback(transcription: str):
 
-        print(f"Transcribed Text: {transcription}")
         asyncio.create_task(process_and_convert_to_speech(transcription))
 
     while not stop_event.is_set():
