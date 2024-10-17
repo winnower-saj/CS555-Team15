@@ -4,14 +4,14 @@ import {
 } from 'react-native-safe-area-context';
 import { Text } from 'react-native';
 
-const Home = () => {
+const Login = () => {
 	return (
 		<SafeAreaProvider>
 			<SafeAreaViewRN>
-				<Text>Home</Text>
+				<Text>Login</Text>
 			</SafeAreaViewRN>
 		</SafeAreaProvider>
 	);
 };
 
-export default Home;
+export default Login;
