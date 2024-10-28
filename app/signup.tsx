@@ -8,18 +8,14 @@ import {
 	Alert,
 } from 'react-native';
 import { Icon, Button } from 'react-native-elements';
-import axios from 'axios';
 import { useRouter } from 'expo-router';
 import CustomModal from './components/CustomModal';
-// import Config from 'react-native-config';
-
-const Config = {
-	// Todo add paths
-	API_URL: 'server-public-api',
-};
+import { useAuth } from '../context/authContext';
+import { signupUser } from '../services/dbService';
 
 const SignUp = () => {
 	const router = useRouter();
+	const { login } = useAuth();
 	const [firstName, setFirstName] = useState('');
 	const [lastName, setLastName] = useState('');
 	const [phoneNumber, setPhoneNumber] = useState('');
@@ -91,27 +87,24 @@ const SignUp = () => {
 		}
 
 		try {
-			const userData = {
+			const response = await signupUser({
 				firstName: trimmedFirstName,
 				lastName: trimmedLastName,
 				phoneNumber: trimmedPhoneNumber,
 				password: trimmedPassword,
-			};
-
-			const response = await axios.post(
-				`${Config.API_URL}/auth/signup`,
-				userData
-			);
+			});
 
 			if (response.status === 201) {
+				const { userId, accessToken, refreshToken } = response.data;
+				await login(userId, accessToken, refreshToken);
 				setShowModal(true);
+			} else {
+				Alert.alert(
+					'Error',
+					'Failed to create account. Please try again.'
+				);
 			}
 		} catch (error) {
-			console.error(
-				'Error during signup:',
-				error.response?.data || error.message,
-				`${Config.API_URL}/auth/signup`
-			);
 			Alert.alert('Error', 'Failed to create account. Please try again.');
 		}
 	};
@@ -192,7 +185,7 @@ const SignUp = () => {
 
 			<View style={styles.loginContainer}>
 				<Text>Already have an account? </Text>
-				<TouchableOpacity onPress={() => router.navigate('Login')}>
+				<TouchableOpacity onPress={() => router.navigate('/login')}>
 					<Text style={styles.loginText}>Log In</Text>
 				</TouchableOpacity>
 			</View>
