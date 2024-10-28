@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { Asset } from 'expo-asset';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppIntroduction from './components/AppIntroduction';
+import { AuthProvider, useAuth } from '../context/authContext';
+import { getUserSession } from '../services/authService';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -14,8 +16,9 @@ const preloadImages = async (imageAssets) => {
 	return Promise.all(cacheImages);
 };
 
-const RootLayout = () => {
+const RootLayoutContent = () => {
 	const router = useRouter();
+	const { login, user } = useAuth();
 	const [isAppReady, setIsAppReady] = useState(false);
 	const [isLoadDataComplete, setIsLoadDataComplete] = useState(false);
 	const [hasOpenedAppBefore, setHasOpenedAppBefore] = useState(false);
@@ -38,6 +41,16 @@ const RootLayout = () => {
 				'hasOpenedAppBefore'
 			);
 			setHasOpenedAppBefore(hasOpenedBefore === 'true');
+
+			const session = await getUserSession();
+			if (session?.accessToken) {
+				await login(
+					session.userId,
+					session.accessToken,
+					session.refreshToken
+				);
+			}
+
 			setIsLoadDataComplete(true);
 		} catch (e) {
 			console.warn(e);
@@ -52,20 +65,28 @@ const RootLayout = () => {
 		const hideSplashScreen = async () => {
 			if (isFontsLoaded && isLoadDataComplete) {
 				setIsAppReady(true);
-				await SplashScreen.hideAsync().catch((error) =>
-					console.warn('Error hiding splash screen', error)
-				);
 			}
 		};
 		hideSplashScreen();
 	}, [isFontsLoaded, isLoadDataComplete]);
+
+	useEffect(() => {
+		if (isAppReady) {
+			if (user) {
+				router.replace('/home');
+			}
+			SplashScreen.hideAsync().catch((error) =>
+				console.warn('Error hiding splash screen', error)
+			);
+		}
+	}, [isAppReady]);
 
 	if (!isAppReady) {
 		return null;
 	}
 
 	// If the app has not been opened before, show the AppIntroduction component
-	if (!hasOpenedAppBefore) {
+	if (!hasOpenedAppBefore && !user) {
 		return (
 			<AppIntroduction
 				onSkip={async () => {
@@ -85,5 +106,11 @@ const RootLayout = () => {
 		</Stack>
 	);
 };
+
+const RootLayout = () => (
+	<AuthProvider>
+		<RootLayoutContent />
+	</AuthProvider>
+);
 
 export default RootLayout;
