@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SplashScreen from 'expo-splash-screen';
+import { Stack, useRouter } from 'expo-router';
 import { Asset } from 'expo-asset';
 import { useFonts } from 'expo-font';
-import { Stack, useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppIntroduction from './components/AppIntroduction';
 import { AuthProvider, useAuth } from '../context/authContext';
 import { getUserSession } from '../services/authService';
@@ -17,6 +18,7 @@ const preloadImages = async (imageAssets) => {
 };
 
 const RootLayoutContent = () => {
+	const [appState, setAppState] = useState(AppState.currentState);
 	const router = useRouter();
 	const { login, user } = useAuth();
 	const [isAppReady, setIsAppReady] = useState(false);
@@ -25,6 +27,45 @@ const RootLayoutContent = () => {
 	const [isFontsLoaded] = useFonts({
 		SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
 	});
+
+	useEffect(() => {
+		const handleAppStateChange = (nextAppState: AppStateStatus) => {
+			if (appState === 'background' && nextAppState === 'active') {
+				if (user) {
+					while (router.canGoBack()) {
+						router.back();
+					}
+					router.replace('/home');
+				}
+			}
+
+			if (appState === 'active' && nextAppState === 'background') {
+			}
+
+			setAppState(nextAppState);
+		};
+
+		const subscription = AppState.addEventListener(
+			'change',
+			handleAppStateChange
+		);
+
+		// Cleanup the event listener when the component is unmounted
+		return () => {
+			subscription.remove();
+		};
+	}, [appState]);
+
+	const loadUserData = async () => {
+		const session = await getUserSession();
+		if (session?.accessToken) {
+			await login(
+				session.userId,
+				session.accessToken,
+				session.refreshToken
+			);
+		}
+	};
 
 	const loadData = async () => {
 		try {
@@ -41,16 +82,7 @@ const RootLayoutContent = () => {
 				'hasOpenedAppBefore'
 			);
 			setHasOpenedAppBefore(hasOpenedBefore === 'true');
-
-			const session = await getUserSession();
-			if (session?.accessToken) {
-				await login(
-					session.userId,
-					session.accessToken,
-					session.refreshToken
-				);
-			}
-
+			await loadUserData();
 			setIsLoadDataComplete(true);
 		} catch (e) {
 			console.warn(e);
@@ -73,6 +105,9 @@ const RootLayoutContent = () => {
 	useEffect(() => {
 		if (isAppReady) {
 			if (user) {
+				while (router.canGoBack()) {
+					router.back();
+				}
 				router.replace('/home');
 			}
 			SplashScreen.hideAsync().catch((error) =>
@@ -97,12 +132,15 @@ const RootLayoutContent = () => {
 		);
 	}
 
-	return (
+	return user ? (
+		<Stack initialRouteName='home'>
+			<Stack.Screen name='home' options={{ headerShown: false }} />
+		</Stack>
+	) : (
 		<Stack>
 			<Stack.Screen name='index' options={{ headerShown: false }} />
 			<Stack.Screen name='signup' options={{ headerShown: false }} />
 			<Stack.Screen name='login' options={{ headerShown: false }} />
-			<Stack.Screen name='home' options={{ headerShown: false }} />
 		</Stack>
 	);
 };
