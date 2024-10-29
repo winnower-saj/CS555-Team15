@@ -12,7 +12,7 @@ const LogoutModal = ({ showLogoutModal, handleCancel, handleLogout }) => {
         >
             <View style={styles.modalContainer}>
                 <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Logout</Text>
+                    <Text style={styles.modalTitle} testID='logout-heading'>Logout</Text>
                     <Text style={styles.modalConfirmationText}>Are you sure you want to logout?</Text>
                     <View style={styles.buttonContainer}>
                         <Button title='Cancel' buttonStyle={styles.button} titleStyle={styles.buttonText} onPress={handleCancel} />
