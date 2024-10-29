@@ -21,6 +21,15 @@ const createUser = async (userData) => {
 	}
 };
 
+// Delete a user
+const deleteUser = async (userId) => {
+	try {
+		await User.findByIdAndDelete(userId);
+	} catch (error) {
+		throw new Error('Error deleting user: ' + error.message);
+	}
+}
+
 // Store a refresh token
 const storeRefreshToken = async (tokenData) => {
 	try {
@@ -53,6 +62,7 @@ const deleteRefreshToken = async (token) => {
 module.exports = {
 	findUserByPhoneNumber,
 	createUser,
+	deleteUser,
 	storeRefreshToken,
 	findRefreshToken,
 	deleteRefreshToken,

@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {
 	createUser,
+	deleteUser,
 	findUserByPhoneNumber,
 	storeRefreshToken,
 	findRefreshToken,
@@ -125,6 +126,27 @@ router.post('/logout', async (req, res) => {
 	} catch (error) {
 		console.error('Error during logout:', error.message);
 		res.status(500).json({ message: 'Server error during logout' });
+	}
+});
+
+// Delete user route
+router.delete('/delete', async (req, res) => {
+	const { userId, token } = req.body;
+
+	try {
+		const user = await findUserByPhoneNumber(userId);
+
+		if (!user) {
+			return res.status(404).json({ message: 'User not found' });
+		}
+
+		await deleteUser(userId);
+		await deleteRefreshToken(token);
+
+		res.status(204).send();
+	} catch (error) {
+		console.error('Error during user deletion', error.message);
+		res.status(500).json({ message: 'Server error during user deletion' });
 	}
 });
 
