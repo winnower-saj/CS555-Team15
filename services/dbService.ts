@@ -20,6 +20,22 @@ const signupUser = async (userData) => {
 	}
 };
 
+const loginUser = async (userData) => {
+	try {
+		const response = await axios.post(
+			`${Config.API_URL}/auth/login`,
+			userData
+		);
+		return response;
+	} catch (error) {
+		console.error(
+			'Error during login:',
+			error.response?.data || error.message
+		);
+		throw error;
+	}
+};
+
 const refreshAccessToken = async (refreshToken) => {
 	try {
 		const response = await fetch(`${Config.API_URL}/token`, {
@@ -41,4 +57,4 @@ const refreshAccessToken = async (refreshToken) => {
 	}
 };
 
-export { signupUser, refreshAccessToken };
+export { signupUser, loginUser, refreshAccessToken };
