@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const Config = {
-	API_URL: 'server-public-api',
+	API_URL: 'http://192.168.1.202:3000',
 };
 
 const signupUser = async (userData) => {
@@ -19,6 +19,17 @@ const signupUser = async (userData) => {
 		throw error;
 	}
 };
+
+// Logout a user by sending their refresh token to the API
+const logoutUser = async (refreshToken: string) => {
+	try {
+		const response = await axios.post(`${Config.API_URL}/auth/logout`, { token: refreshToken });
+		return response.data;
+	} catch (error) {
+		console.error('Error during logout:', error.response?.data || error.message);
+		throw new Error('Logout failed. Please try again.');
+	}
+}
 
 const refreshAccessToken = async (refreshToken) => {
 	try {
@@ -41,4 +52,4 @@ const refreshAccessToken = async (refreshToken) => {
 	}
 };
 
-export { signupUser, refreshAccessToken };
+export { signupUser, logoutUser, refreshAccessToken };
