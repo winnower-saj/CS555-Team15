@@ -44,9 +44,9 @@ router.post('/signup', async (req, res) => {
 			accessToken,
 			refreshToken,
 			userId: newUser._id,
-			firstName: user.firstName,
-			lastName: user.lastName,
-			phoneNumber: user.phoneNumber,
+			firstName: newUser.firstName,
+			lastName: newUser.lastName,
+			phoneNumber: newUser.phoneNumber,
 		});
 	} catch (error) {
 		console.error('Error during sign-up:', error.message);
