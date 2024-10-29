@@ -44,6 +44,9 @@ router.post('/signup', async (req, res) => {
 			accessToken,
 			refreshToken,
 			userId: newUser._id,
+			firstName: user.firstName,
+			lastName: user.lastName,
+			phoneNumber: user.phoneNumber,
 		});
 	} catch (error) {
 		console.error('Error during sign-up:', error.message);
@@ -61,7 +64,7 @@ router.post('/login', async (req, res) => {
 			return res.status(400).json({ message: 'Invalid credentials' });
 		}
 
-		const isPasswordCorrect = await bcrypt.compare(password, user.password);
+		const isPasswordCorrect = user.comparePassword(password);
 		if (!isPasswordCorrect) {
 			return res.status(400).json({ message: 'Invalid credentials' });
 		}
@@ -73,6 +76,9 @@ router.post('/login', async (req, res) => {
 			accessToken,
 			refreshToken,
 			userId: user._id,
+			firstName: user.firstName,
+			lastName: user.lastName,
+			phoneNumber: user.phoneNumber,
 		});
 	} catch (error) {
 		console.error('Error during login:', error.message);
