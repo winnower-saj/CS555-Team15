@@ -4,11 +4,11 @@ import os
 import asyncio
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
-from reminder_handler import ReminderHandler
-from appointment_handler import AppointmentHandler
-from TextToSpeech import text_to_speech_stream
-from SpeechToText import speech_recognition, pause_microphone, resume_microphone
-from LLM import VoiceAssistantLLM
+from app.reminder_handler import ReminderHandler
+from app.appointment_handler import AppointmentHandler
+from app.TextToSpeech import text_to_speech_stream
+from app.SpeechToText import speech_recognition, pause_microphone, resume_microphone
+from app.LLM import VoiceAssistantLLM
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
