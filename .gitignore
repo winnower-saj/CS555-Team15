@@ -1,5 +1,5 @@
 # Ignore virtual environment
-venv/
+vita/
 
 # Ignore Python cache and compiled files
 __pycache__/

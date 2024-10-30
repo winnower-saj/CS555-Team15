@@ -11,6 +11,10 @@ from app.SpeechToText import speech_recognition, pause_microphone, resume_microp
 from app.LLM import VoiceAssistantLLM
 from dotenv import load_dotenv
 from pydantic import BaseModel
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 
 load_dotenv()
 
