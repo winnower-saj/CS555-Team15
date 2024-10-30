@@ -1,15 +1,15 @@
 import axios from 'axios';
 
 const Config = {
-    API_URL: 'http://192.168.1.202:3000',
+    API_URL: 'server-public-api',
 };
 
 const signupUser = async (userData) => {
     try {
-        const response = await axios.post(
-            `${Config.API_URL}/auth/signup`,
+        const response = await axios.post(`${Config.API_URL}/auth/signup`,
             userData
         );
+
         return response;
     } catch (error) {
         console.error(
@@ -22,10 +22,10 @@ const signupUser = async (userData) => {
 
 const loginUser = async (userData) => {
     try {
-        const response = await axios.post(
-            `${Config.API_URL}/auth/login`,
+        const response = await axios.post(`${Config.API_URL}/auth/login`,
             userData
         );
+
         return response;
     } catch (error) {
         console.error(
