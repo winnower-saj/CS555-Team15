@@ -33,9 +33,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const login = async (
 		userId: string,
 		accessToken: string,
-		refreshToken: string
+		refreshToken: string,
+		firstName: string,
+		lastName: string,
+		phoneNumber: string
 	) => {
-		await saveUserSession(userId, accessToken, refreshToken);
+		await saveUserSession(userId, accessToken, refreshToken, firstName, lastName, phoneNumber);
 		setUser({ userId, accessToken });
 	};
 

@@ -95,8 +95,8 @@ const SignUp = () => {
 			});
 
 			if (response.status === 201) {
-				const { userId, accessToken, refreshToken } = response.data;
-				await login(userId, accessToken, refreshToken);
+				const { userId, accessToken, refreshToken, firstName, lastName, phoneNumber } = response.data;
+				await login(userId, accessToken, refreshToken, firstName, lastName, phoneNumber);
 				setShowModal(true);
 			} else {
 				Alert.alert(
@@ -196,7 +196,7 @@ const SignUp = () => {
 					button='Home'
 					onClose={() => {
 						setShowModal(false);
-						router.push('/home');
+						router.navigate('/home');
 					}}
 					visible={showModal}
 				/>

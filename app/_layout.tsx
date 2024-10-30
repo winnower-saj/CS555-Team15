@@ -62,7 +62,10 @@ const RootLayoutContent = () => {
 			await login(
 				session.userId,
 				session.accessToken,
-				session.refreshToken
+				session.refreshToken,
+				session.firstName,
+				session.lastName,
+				session.phoneNumber
 			);
 		}
 	};
@@ -135,6 +138,7 @@ const RootLayoutContent = () => {
 	return user ? (
 		<Stack initialRouteName='home'>
 			<Stack.Screen name='home' options={{ headerShown: false }} />
+			<Stack.Screen name='delete-account' options={{ headerShown: false }} />
 		</Stack>
 	) : (
 		<Stack>

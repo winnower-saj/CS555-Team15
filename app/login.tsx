@@ -60,8 +60,10 @@ const LogIn = () => {
 			const response = await loginUser(userData);
 
 			if (response.status === 200) {
-				const { userId, accessToken, refreshToken } = response.data;
-				await login(userId, accessToken, refreshToken);
+				const { userId, accessToken, refreshToken, firstName, lastName, phoneNumber } = response.data;
+				console.log(firstName);
+
+				await login(userId, accessToken, refreshToken, firstName, lastName, phoneNumber);
 				while (router.canGoBack()) {
 					router.back();
 				}
@@ -118,7 +120,7 @@ const LogIn = () => {
 
 			<View style={styles.loginContainer}>
 				<TouchableOpacity
-					onPress={() => router.navigate('ForgotPassword')}
+					onPress={() => router.navigate('/forgot-password')}
 				>
 					<Text style={styles.forgotPasswordText}>
 						Forgot Password?
