@@ -44,7 +44,6 @@ async def speech_recognition(callback):
     global mic_instance, dg_connection
 
     try:
-        # Deepgram client configuration
         client_config = DeepgramClientOptions(options={"keepalive": "true"})
         deepgram_client = DeepgramClient(DEEPGRAM_API_KEY, client_config)
         dg_connection = deepgram_client.listen.asyncwebsocket.v("1")
@@ -52,14 +51,14 @@ async def speech_recognition(callback):
         async def on_message(self, result, **kwargs):
             transcription = result.channel.alternatives[0].transcript
 
-            if not result.speech_final: # speech final -> sentence complete based on endpointing
+            if not result.speech_final:  # speech final -> sentence complete based on endpointing
                 transcript_manager.add_transcription(transcription)
             else:
                 transcript_manager.add_transcription(transcription)
                 full_transcript = transcript_manager.get_full_transcription().strip()
                 if len(full_transcript) > 0:
                     print(f"Final Transcription: {full_transcript}")
-                    callback(full_transcript)  # Send the final transcript to the callback
+                    await callback(full_transcript)
                     transcript_manager.clear()
 
         dg_connection.on(LiveTranscriptionEvents.Transcript, on_message)
@@ -75,7 +74,6 @@ async def speech_recognition(callback):
             smart_format=True,
         )
 
-        # Start the transcription service
         await dg_connection.start(transcription_options)
 
         mic_instance = Microphone(dg_connection.send)

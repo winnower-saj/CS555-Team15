@@ -1,60 +1,88 @@
 import os
 from typing import IO
 import subprocess
-from io import BytesIO
 import shutil
 from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
+from io import BytesIO
 from pydub import AudioSegment
 from pydub.playback import play
 from dotenv import load_dotenv
-
 load_dotenv()
 
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+if not ELEVENLABS_API_KEY:
+    raise ValueError("ELEVENLABS_API_KEY not found in environment variables.")
 
 client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
 
-def is_installed(program: str) -> bool:
-    return shutil.which(program) is not None
+def play_audio(audio_stream: IO[bytes], use_pydub=True):
+    if use_pydub:
+        try:
+            audio_data = audio_stream.read()
+            if not audio_data:
+                print("No audio data to play.")
+                return
+            audio_segment = AudioSegment.from_file(BytesIO(audio_data), format="mp3")
+            play(audio_segment)
+            print("Audio playback finished.")
+        except Exception as e:
+            print(f"Error during pydub playback: {e}")
+    else:
+        player = "ffplay"
+        
+        if not shutil.which(player):
+            raise ValueError(f"{player} not found, necessary to stream audio.")
+        
+        player_command = [player, "-autoexit", "-", "-nodisp"]
 
-def play_audio(audio_stream: IO[bytes], use_ffmpeg=True): # funtion to play audio in real-time without saving to a file
-    player = "ffplay"
-    
-    if not is_installed(player):
-        raise ValueError(f"{player} not found, necessary to stream audio.")
-    
-    # ffplay command to play audio from stdin, without displaying video output
-    player_command = [player, "-autoexit", "-", "-nodisp"]
+        try:
+            player_process = subprocess.Popen(
+                player_command,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+            )
+        except Exception as e:
+            print(f"Error launching ffplay: {e}")
+            return
 
-    # Launch ffplay as a subprocess and pass the audio stream to stdin
-    player_process = subprocess.Popen(
-        player_command,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL, 
-    )
+        try:
+            data = audio_stream.read()
+            if not data:
+                print("No audio data received.")
+            player_process.stdin.write(data)
+            player_process.stdin.close()
+        except Exception as e:
+            print(f"Error writing to ffplay stdin: {e}")
 
-    # Write the audio stream to ffplay
-    player_process.stdin.write(audio_stream.read())
-    player_process.stdin.close() 
+        try:
+            stderr = player_process.stderr.read().decode()
+            if stderr:
+                print(f"ffplay stderr: {stderr}")
+        except Exception as e:
+            print(f"Error reading ffplay stderr: {e}")
 
-    player_process.wait()
-
+        player_process.wait()
 
 def text_to_speech_stream(text: str):
-    response = client.text_to_speech.convert(
-        voice_id="pNInz6obpgDQGcFmaJgB", 
-        output_format="mp3_22050_32",
-        text=text,
-        model_id="eleven_multilingual_v2",
-        voice_settings=VoiceSettings(
-            stability=0.0,
-            similarity_boost=1.0,
-            style=0.0,
-            use_speaker_boost=True,
-        ),
-    )
+    try:
+        print(f"Sending text to ElevenLabs API: {text}")
+        response = client.text_to_speech.convert(
+            voice_id="pNInz6obpgDQGcFmaJgB", 
+            output_format="mp3_22050_32",
+            text=text,
+            model_id="eleven_multilingual_v2",
+            voice_settings=VoiceSettings(
+                stability=0.0,
+                similarity_boost=1.0,
+                style=0.0,
+                use_speaker_boost=True,
+            ),
+        )
+    except Exception as e:
+        print(f"Error during TTS conversion: {e}")
+        return
 
     audio_stream = BytesIO()
 
@@ -62,9 +90,14 @@ def text_to_speech_stream(text: str):
     for chunk in response:
         if chunk:
             audio_stream.write(chunk)
+            print(f"Received chunk of size: {len(chunk)} bytes")
 
     # Reset stream position to the beginning before playing
     audio_stream.seek(0)
 
-    # Play the audio
-    play_audio(audio_stream)
+    # Play the audio using pydub
+    try:
+        print("Playing audio with pydub...")
+        play_audio(audio_stream, use_pydub=True)
+    except Exception as e:
+        print(f"Error during audio playback: {e}")
