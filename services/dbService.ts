@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const Config = {
-    API_URL: 'server-public-api',
+    API_URL: 'http://192.168.1.202:3000',
 };
 
 const signupUser = async (userData) => {
@@ -42,6 +42,7 @@ const logoutUser = async (refreshToken: string) => {
         const response = await axios.post(`${Config.API_URL}/auth/logout`, {
             token: refreshToken,
         });
+
         return response.data;
     } catch (error) {
         console.error(
@@ -49,6 +50,23 @@ const logoutUser = async (refreshToken: string) => {
             error.response?.data || error.message
         );
         throw new Error('Logout failed. Please try again.');
+    }
+};
+
+// Delete a user by sending their userId and token to the API
+const deleteUser = async (userId: string, refreshToken: string) => {
+    try {
+        const response = await axios.delete(`${Config.API_URL}/auth/delete`, {
+            data: { userId, token: refreshToken }
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error(
+            'Error during deleting the account:',
+            error.response?.data || error.message
+        );
+        throw new Error('Deleting the account failed. Please try again.');
     }
 };
 
@@ -73,4 +91,4 @@ const refreshAccessToken = async (refreshToken) => {
     }
 };
 
-export { signupUser, loginUser, logoutUser, refreshAccessToken };
+export { signupUser, loginUser, logoutUser, deleteUser, refreshAccessToken };
