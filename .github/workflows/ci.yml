@@ -24,14 +24,11 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Install Expo CLI
-      run: npm install -g expo-cli
-
     - name: Run tests
       run: npm run test:ci
     
     - name: Build the project
-      run: expo build:android --no-publish --non-interactive
+      run: npx expo build:android --no-publish --non-interactive
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
