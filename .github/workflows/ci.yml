@@ -25,7 +25,7 @@ jobs:
       run: npm install
 
     - name: Run tests
-      run: npm test
+      run: npm test:ci
     
     - name: Build the project
       run: expo build:android --no-publish --non-interactive
