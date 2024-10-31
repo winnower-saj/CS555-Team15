@@ -1,4 +1,4 @@
-import os
+import os 
 from signal import SIGINT, SIGTERM
 import asyncio
 from dotenv import load_dotenv
@@ -9,6 +9,10 @@ from deepgram import (
     LiveOptions,
     Microphone,
 )
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 DEEPGRAM_API_KEY = os.getenv('DEEPGRAM_API_KEY')
@@ -32,14 +36,16 @@ def pause_microphone():
     global mic_instance
     if mic_instance is not None and mic_instance._stream is not None:
         mic_instance._stream.stop_stream()  # pause the microphone stream
+        logger.info("Microphone paused.")
 
 def resume_microphone():
     global mic_instance
     if mic_instance is not None and mic_instance._stream is not None:
         if not mic_instance._stream.is_active():
             mic_instance._stream.start_stream()  # resume the microphone stream
+            logger.info("Microphone resumed.")
 
-async def speech_recognition(callback):
+async def speech_recognition(callback, stop_event):
     transcript_manager = TranscriptManager() 
     global mic_instance, dg_connection
 
@@ -57,7 +63,7 @@ async def speech_recognition(callback):
                 transcript_manager.add_transcription(transcription)
                 full_transcript = transcript_manager.get_full_transcription().strip()
                 if len(full_transcript) > 0:
-                    print(f"Final Transcription: {full_transcript}")
+                    logger.info(f"Final Transcription: {full_transcript}")
                     await callback(full_transcript)
                     transcript_manager.clear()
 
@@ -78,13 +84,17 @@ async def speech_recognition(callback):
 
         mic_instance = Microphone(dg_connection.send)
         mic_instance.start()
+        logger.info("Microphone started.")
 
-        # Keep listening until the system is stopped
-        while True:
-            await asyncio.sleep(1)
+        # Keep listening until the stop_event is set
+        while not stop_event.is_set():
+            await asyncio.sleep(0.1)  # Short sleep to allow checking the stop_event frequently
 
+    except asyncio.CancelledError:
+        logger.info("Speech recognition task was cancelled.")
     except Exception as error:
-        print(f"Error: {error}")
+        logger.error(f"Error in speech recognition: {error}")
     finally:
         if mic_instance and mic_instance._stream is not None:
-            mic_instance._stream.stop_stream() 
+            mic_instance._stream.stop_stream()
+            logger.info("Microphone stopped in finally block.")
