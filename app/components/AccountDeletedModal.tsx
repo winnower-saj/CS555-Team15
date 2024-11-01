@@ -2,21 +2,21 @@ import React from 'react';
 import { View, Text, Modal, StyleSheet } from 'react-native';
 import { Button } from 'react-native-elements';
 
-const LogoutModal = ({ showLogoutModal, handleCancel, handleLogout }) => {
+const AccountDeletedModal = ({ showAccountDeletedModal, handleClose }) => {
     return (
         <Modal
             animationType='slide'
             transparent={true}
-            visible={showLogoutModal}
-            onRequestClose={handleCancel}
+            visible={showAccountDeletedModal}
+            onRequestClose={handleClose}
         >
             <View style={styles.modalContainer}>
                 <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle} testID='logout-heading'>Logout</Text>
-                    <Text style={styles.modalConfirmationText}>Are you sure you want to logout?</Text>
+                    <Text style={styles.modalSuccess}>Success</Text>
+                    <Text style={styles.modalTitle} >Successfully!</Text>
+                    <Text style={styles.modalConfirmationText}>Your account has been successfully deleted. We're sorry to see you go.</Text>
                     <View style={styles.buttonContainer}>
-                        <Button title='Cancel' buttonStyle={styles.button} titleStyle={styles.buttonText} onPress={handleCancel} />
-                        <Button title='Logout' buttonStyle={styles.button} titleStyle={styles.buttonText} onPress={handleLogout} />
+                        <Button title='Close' buttonStyle={styles.button} titleStyle={styles.buttonText} onPress={handleClose} />
                     </View>
                 </View>
             </View>
@@ -32,40 +32,48 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 119, 182, 0.3)'
     },
     modalContent: {
+        justifyContent: 'space-evenly',
         width: '100%',
-        height: '30%',
+        height: '40%',
         padding: 20,
         backgroundColor: 'white',
         borderTopLeftRadius: 50,
         borderTopRightRadius: 50,
         alignItems: 'center'
     },
+    modalSuccess: {
+        backgroundColor: '#00FF00',
+        borderRadius: 50,
+        color: '#000000',
+        width: 120,
+        paddingTop: 5,
+        paddingBottom: 5,
+        textAlign: 'center',
+        fontWeight: '600'
+    },
     modalTitle: {
-        fontSize: 32,
+        fontSize: 24,
         fontWeight: '600',
-        marginBottom: 20,
         color: '#0077B6'
     },
     modalConfirmationText: {
-        fontSize: 18,
-        fontWeight: '600'
+        fontSize: 16,
+        fontWeight: '600',
+        textAlign: 'center'
     },
     buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        width: '100%',
-        marginTop: 40
+        width: '100%'
     },
     button: {
         backgroundColor: '#0077B6',
-        width: 140,
+        width: '100%',
         height: 60,
         borderRadius: 50
     },
     buttonText: {
         fontWeight: '600',
-        fontSize: 18
+        fontSize: 20
     }
 });
 
-export default LogoutModal;
+export default AccountDeletedModal;

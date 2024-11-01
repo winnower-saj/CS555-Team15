@@ -4,7 +4,10 @@ interface AuthContextType {
 	login: (
 		userId: string,
 		accessToken: string,
-		refreshToken: string
+		refreshToken: string,
+		firstName: string,
+		lastName: sttring,
+		phoneNumber: string
 	) => Promise<void>;
 	logout: () => Promise<void>;
 }
