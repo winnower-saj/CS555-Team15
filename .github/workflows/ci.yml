@@ -14,28 +14,26 @@ on:
 
 jobs:
   build:
+    name: Build and Test Backend
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.12'
 
-      - name: Install PortAudio (needed for PyAudio)
+      - name: Install PortAudio
         run: sudo apt-get update && sudo apt-get install -y portaudio19-dev
 
-      - name: Install Python dependencies
+      - name: Install Dependencies and Run Tests
+        working-directory: voice-assistant-backend
         run: |
           python -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Run tests
-        run: |
-          source venv/bin/activate
           pytest
