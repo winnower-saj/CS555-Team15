@@ -1,0 +1,15 @@
+# Ignore virtual environment
+vita/
+
+# Ignore Python cache and compiled files
+__pycache__/
+*.py[cod]
+
+# Ignore environment variables
+.env
+
+# Ignore pytest cache
+.pytest_cache/
+
+# Ignore log files
+*.log
