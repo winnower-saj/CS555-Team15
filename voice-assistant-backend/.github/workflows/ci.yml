@@ -1,12 +1,7 @@
-name: AI/ML CI
+name: Test CI
 
 on:
-  push:
-    branches:
-      - ai-ml-components
-  pull_request:
-    branches:
-      - ai-ml-components
+  workflow_call:
 
 jobs:
   build:
