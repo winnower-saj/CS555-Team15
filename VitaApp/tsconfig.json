@@ -7,6 +7,8 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
+    "VitaApp/.expo/types/**/*.ts",
+    "VitaApp/expo-env.d.ts",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
   ]

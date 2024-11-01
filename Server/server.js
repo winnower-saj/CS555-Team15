@@ -4,6 +4,7 @@ const connectMongoDB = require('./config/mongoDB');
 
 dotenv.config();
 
+const HOST = '192.168.1.202';
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
@@ -12,7 +13,7 @@ const startServer = async () => {
 		await connectMongoDB();
 
 		// Start the server
-		app.listen(PORT, () => {
+		app.listen(PORT, HOST, () => {
 			console.log(`Server running on port ${PORT}`);
 		});
 	} catch (error) {
