@@ -37,7 +37,6 @@ const deleteUserById = async (userId) => {
 	} catch (error) {
 		throw new Error('Error deleting user: ' + error.message);
 	}
-}
 };
 
 // Store a refresh token
