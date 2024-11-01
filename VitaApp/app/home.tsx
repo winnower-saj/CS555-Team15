@@ -8,7 +8,7 @@ const Home = () => {
 	return (
 		<SafeAreaProvider>
 			<SafeAreaViewRN>
-				<Text>Home Screen</Text>
+				<Text>Home</Text>
 			</SafeAreaViewRN>
 		</SafeAreaProvider>
 	);
