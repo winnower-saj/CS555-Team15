@@ -1,0 +1,15 @@
+name: Main Branch CI Trigger
+
+on:
+  push:
+    branches:
+      - backend
+  pull_request:
+    branches:
+      - backend
+
+jobs:
+  run-backend-ci:
+    uses: ./voice-assistant-backend/.github/workflows/ci.yml 
+    secrets: inherit
+
