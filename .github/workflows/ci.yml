@@ -1,37 +1,39 @@
-name: AI/ML CI
+name: Voice Assistant CI
 
 on:
-  push:
-    branches:
-      - ai-ml-components
-  pull_request:
-    branches:
-      - ai-ml-components
+    push:
+        branches:
+            - main
+        paths:
+            - 'voice-assistant-backend/**'
+    pull_request:
+        branches:
+            - main
+        paths:
+            - 'voice-assistant-backend/**'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+    build:
+        name: Build and Test Backend
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
+        steps:
+            - name: Checkout the code
+              uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.12'
+            - name: Set up Python
+              uses: actions/setup-python@v4
+              with:
+                  python-version: '3.12'
 
-      - name: Install PortAudio (needed for PyAudio)
-        run: sudo apt-get update && sudo apt-get install -y portaudio19-dev
+            - name: Install PortAudio
+              run: sudo apt-get update && sudo apt-get install -y portaudio19-dev
 
-      - name: Install Python dependencies
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run tests
-        run: |
-          source venv/bin/activate
-          pytest
+            - name: Install Dependencies and Run Tests
+              working-directory: voice-assistant-backend
+              run: |
+                  python -m venv venv
+                  source venv/bin/activate
+                  pip install --upgrade pip
+                  pip install -r requirements.txt
+                  pytest
