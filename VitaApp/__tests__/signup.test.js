@@ -96,39 +96,6 @@ describe('SignUp Component', () => {
 		});
 	});
 
-	// it('makes an API call with correct data when form is valid', async () => {
-	// 	axios.post.mockResolvedValue({ status: 201 });
-
-	// 	const { getByPlaceholderText, getByText } = renderWithAuthProvider(
-	// 		<SignUp />
-	// 	);
-
-	// 	fireEvent.changeText(getByPlaceholderText('First Name'), 'John');
-	// 	fireEvent.changeText(getByPlaceholderText('Last Name'), 'Doe');
-	// 	fireEvent.changeText(
-	// 		getByPlaceholderText('Phone number'),
-	// 		'1234567890'
-	// 	);
-	// 	fireEvent.changeText(getByPlaceholderText('Password'), 'password123');
-	// 	fireEvent.changeText(
-	// 		getByPlaceholderText('Confirm Password'),
-	// 		'password123'
-	// 	);
-
-	// 	fireEvent.press(getByText('Sign Up'));
-
-	// 	await waitFor(() => {
-	// 		expect(axios.post).toHaveBeenCalledWith(
-	// 			`${mockedConfig.API_URL}/auth/signup`,
-	// 			{
-	// 				firstName: 'John',
-	// 				lastName: 'Doe',
-	// 				phoneNumber: '1234567890',
-	// 				password: 'password123',
-	// 			}
-	// 		);
-	// 	});
-	// });
 
 	it('shows an error if the API call fails', async () => {
 		axios.post.mockRejectedValue({
