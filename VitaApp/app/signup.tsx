@@ -7,11 +7,12 @@ import {
 	StyleSheet,
 	Alert,
 } from 'react-native';
-import { Icon, Button } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import { useRouter } from 'expo-router';
 import CustomModal from './components/CustomModal';
 import { useAuth } from '../context/authContext';
 import { signupUser } from '../services/dbService';
+import PasswordInput from './components/PasswordInput';
 
 const SignUp = () => {
 	const router = useRouter();
@@ -21,8 +22,6 @@ const SignUp = () => {
 	const [phoneNumber, setPhoneNumber] = useState('');
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
-	const [showPassword, setShowPassword] = useState(true);
-	const [showConfirmPassword, setShowConfirmPassword] = useState(true);
 	const [errors, setErrors] = useState({
 		firstName: false,
 		lastName: false,
@@ -32,14 +31,10 @@ const SignUp = () => {
 	});
 	const [showModal, setShowModal] = useState(false);
 
-	const handleSignUp = async () => {
-		const trimmedFirstName = firstName.trim();
-		const trimmedLastName = lastName.trim();
-		const trimmedPhoneNumber = phoneNumber.trim();
-		const trimmedPassword = password.trim();
-		const trimmedConfirmPassword = confirmPassword.trim();
-
-		let valid = true;
+	const isValidDetails = (userDetails) => {
+		const { firstName, lastName, phoneNumber, password, confirmPassword } =
+			userDetails;
+		let isValid = true;
 		const newErrors = {
 			firstName: false,
 			lastName: false,
@@ -47,41 +42,51 @@ const SignUp = () => {
 			password: false,
 			confirmPassword: false,
 		};
-
-		if (!trimmedFirstName) {
+		if (!firstName) {
 			newErrors.firstName = true;
-			valid = false;
+			isValid = false;
 		}
-
-		if (!trimmedLastName) {
+		if (!lastName) {
 			newErrors.lastName = true;
-			valid = false;
+			isValid = false;
 		}
-
-		if (!trimmedPhoneNumber) {
+		if (!phoneNumber) {
 			newErrors.phoneNumber = true;
-			valid = false;
+			isValid = false;
 		}
-
-		if (!trimmedPassword) {
+		if (!password) {
 			newErrors.password = true;
-			valid = false;
+			isValid = false;
 		}
-
-		if (!trimmedConfirmPassword) {
+		if (!confirmPassword) {
 			newErrors.confirmPassword = true;
-			valid = false;
+			isValid = false;
 		}
-
-		if (trimmedPassword !== trimmedConfirmPassword) {
+		if (password !== confirmPassword) {
 			newErrors.password = true;
 			newErrors.confirmPassword = true;
-			valid = false;
+			isValid = false;
 		}
-
 		setErrors(newErrors);
+		return isValid;
+	};
 
-		if (!valid) {
+	const handleSignUp = async () => {
+		const trimmedFirstName = firstName.trim();
+		const trimmedLastName = lastName.trim();
+		const trimmedPhoneNumber = phoneNumber.trim();
+		const trimmedPassword = password.trim();
+		const trimmedConfirmPassword = confirmPassword.trim();
+
+		const isValid = isValidDetails({
+			firstName: trimmedFirstName,
+			lastName: trimmedLastName,
+			phoneNumber: trimmedPhoneNumber,
+			password: trimmedPassword,
+			confirmPassword: trimmedConfirmPassword,
+		});
+
+		if (!isValid) {
 			Alert.alert('Error', 'Please correct the highlighted fields');
 			return;
 		}
@@ -95,8 +100,22 @@ const SignUp = () => {
 			});
 
 			if (response.status === 201) {
-				const { userId, accessToken, refreshToken, firstName, lastName, phoneNumber } = response.data;
-				await login(userId, accessToken, refreshToken, firstName, lastName, phoneNumber);
+				const {
+					userId,
+					accessToken,
+					refreshToken,
+					firstName,
+					lastName,
+					phoneNumber,
+				} = response.data;
+				await login(
+					userId,
+					accessToken,
+					refreshToken,
+					firstName,
+					lastName,
+					phoneNumber
+				);
 				setShowModal(true);
 			} else {
 				Alert.alert(
@@ -135,47 +154,19 @@ const SignUp = () => {
 				onChangeText={setPhoneNumber}
 			/>
 
-			<View
-				style={[
-					styles.passwordContainer,
-					errors.password && styles.inputError,
-				]}
-			>
-				<TextInput
-					style={styles.inputPassword}
-					placeholder='Password'
-					value={password}
-					secureTextEntry={showPassword}
-					onChangeText={setPassword}
-				/>
-				<Icon
-					name={showPassword ? 'eye' : 'eye-off'}
-					type='feather'
-					size={24}
-					onPress={() => setShowPassword(!showPassword)}
-				/>
-			</View>
+			<PasswordInput
+				value={password}
+				placeholder='Password'
+				onChange={setPassword}
+				hasError={errors.password}
+			/>
 
-			<View
-				style={[
-					styles.passwordContainer,
-					errors.confirmPassword && styles.inputError,
-				]}
-			>
-				<TextInput
-					style={styles.inputPassword}
-					placeholder='Confirm Password'
-					value={confirmPassword}
-					secureTextEntry={showConfirmPassword}
-					onChangeText={setConfirmPassword}
-				/>
-				<Icon
-					name={showConfirmPassword ? 'eye' : 'eye-off'}
-					type='feather'
-					size={24}
-					onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-				/>
-			</View>
+			<PasswordInput
+				value={confirmPassword}
+				placeholder='Confirm Password'
+				onChange={setConfirmPassword}
+				hasError={errors.confirmPassword}
+			/>
 
 			<Button
 				title='Sign Up'
@@ -228,20 +219,6 @@ const styles = StyleSheet.create({
 	},
 	inputError: {
 		borderColor: 'red',
-	},
-	passwordContainer: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		width: '100%',
-		borderColor: '#0077FF',
-		borderWidth: 1,
-		borderRadius: 10,
-		marginBottom: 15,
-		paddingRight: 10,
-	},
-	inputPassword: {
-		flex: 1,
-		padding: 10,
 	},
 	signUpButton: {
 		backgroundColor: '#0077FF',
