@@ -1,5 +1,11 @@
 interface AuthContextType {
-	user: { userId: string; accessToken: string } | null;
+	user: {
+		userId: string;
+		accessToken: string;
+		firstName: string;
+		lastName: string;
+		phoneNumber: string;
+	} | null;
 	isUserLoaded: boolean;
 	login: (
 		userId: string,
