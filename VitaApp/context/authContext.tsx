@@ -38,8 +38,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		lastName: string,
 		phoneNumber: string
 	) => {
-		await saveUserSession(userId, accessToken, refreshToken, firstName, lastName, phoneNumber);
-		setUser({ userId, accessToken });
+		await saveUserSession(
+			userId,
+			accessToken,
+			refreshToken,
+			firstName,
+			lastName,
+			phoneNumber
+		);
+		setUser({ userId, accessToken, firstName, lastName, phoneNumber });
 	};
 
 	const logout = async () => {
