@@ -22,4 +22,9 @@ export const Colors = {
 	},
 	white: '#fff',
 	black: '#000',
+	blue: {
+		dark: '#03045E',
+		primary: '#0077B6',
+		light: '#CAF0F8',
+	}
 };
