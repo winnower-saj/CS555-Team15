@@ -21,8 +21,13 @@ const SmallButton = ({ btnTitle, btnBackgroundColor = Colors.blue.primary, btnTe
 const styles = StyleSheet.create({
     buttonWrapper: {
         overflow: 'hidden',
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 1,
+        shadowRadius: 10,
+        elevation: 15,
+        backgroundColor: '#ffffff',
         borderRadius: 50,
-        backgroundColor: Colors.blue.primary,
     },
     button: {
         borderRadius: 50,
