@@ -1,6 +1,6 @@
-const dotenv = require('dotenv');
-const app = require('./app');
-const connectMongoDB = require('./config/mongoDB');
+import dotenv from 'dotenv';
+import app from './app.js';
+import connectMongoDB from './config/mongoDB.js';
 
 dotenv.config();
 

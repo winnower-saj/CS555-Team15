@@ -1,5 +1,5 @@
-const User = require('../models/User');
-const RefreshToken = require('../models/RefreshToken');
+import User from '../models/User.js';
+import RefreshToken from '../models/RefreshToken.js';
 
 // Find user by phone number
 const findUserByPhoneNumber = async (phoneNumber) => {
@@ -68,7 +68,7 @@ const deleteRefreshToken = async (token) => {
 	}
 };
 
-module.exports = {
+export {
 	findUserByPhoneNumber,
 	createUser,
 	deleteUserById,

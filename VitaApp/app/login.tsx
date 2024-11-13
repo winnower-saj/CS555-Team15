@@ -12,7 +12,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../context/authContext';
 import { loginUser } from '../services/dbService';
 
-const LogIn = () => {
+const Login = () => {
 	const router = useRouter();
 	const { login } = useAuth();
 	const [contactInfo, setContactInfo] = useState('');
@@ -59,10 +59,24 @@ const LogIn = () => {
 			const response = await loginUser(userData);
 
 			if (response.status === 200) {
-				const { userId, accessToken, refreshToken, firstName, lastName, phoneNumber } = response.data;
+				const {
+					userId,
+					accessToken,
+					refreshToken,
+					firstName,
+					lastName,
+					phoneNumber,
+				} = response.data;
 				console.log(firstName);
 
-				await login(userId, accessToken, refreshToken, firstName, lastName, phoneNumber);
+				await login(
+					userId,
+					accessToken,
+					refreshToken,
+					firstName,
+					lastName,
+					phoneNumber
+				);
 				while (router.canGoBack()) {
 					router.back();
 				}
@@ -203,4 +217,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default LogIn;
+export default Login;
