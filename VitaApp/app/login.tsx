@@ -8,7 +8,6 @@ import {
 	Alert,
 } from 'react-native';
 import { Icon, Button } from 'react-native-elements';
-import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/authContext';
 import { loginUser } from '../services/dbService';
@@ -85,9 +84,9 @@ const LogIn = () => {
 
 			<TextInput
 				style={[styles.input, errors.contactInfo && styles.inputError]}
-				placeholder='Email or Phone Number'
+				placeholder='Phone Number'
 				value={contactInfo}
-				keyboardType='email-address'
+				keyboardType='phone-pad'
 				onChangeText={setContactInfo}
 			/>
 

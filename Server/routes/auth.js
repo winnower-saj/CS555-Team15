@@ -25,15 +25,16 @@ router.post('/signup', async (req, res) => {
 	try {
 		const existingUser = await findUserByPhoneNumber(phoneNumber);
 		if (existingUser) {
-			return res.status(400).json({ message: 'User with this phone number already exists' });
+			return res.status(400).json({
+				message: 'User with this phone number already exists',
+			});
 		}
 
-		const hashedPassword = await bcrypt.hash(password, 12);
 		const newUser = await createUser({
 			firstName,
 			lastName,
 			phoneNumber,
-			password: hashedPassword,
+			password,
 		});
 
 		const accessToken = generateAccessToken(newUser._id);
@@ -63,7 +64,7 @@ router.post('/login', async (req, res) => {
 			return res.status(400).json({ message: 'Invalid credentials' });
 		}
 
-		const isPasswordCorrect = user.comparePassword(password);
+		const isPasswordCorrect = await user.comparePassword(password);
 		if (!isPasswordCorrect) {
 			return res.status(400).json({ message: 'Invalid credentials' });
 		}
@@ -95,12 +96,16 @@ router.post('/token', async (req, res) => {
 	try {
 		const storedToken = await findRefreshToken(token);
 		if (!storedToken || new Date() > storedToken.expiryDate) {
-			return res.status(403).json({ message: 'Invalid or expired refresh token' });
+			return res
+				.status(403)
+				.json({ message: 'Invalid or expired refresh token' });
 		}
 
 		jwt.verify(token, REFRESH_TOKEN_SECRET, (err, decoded) => {
 			if (err) {
-				return res.status(403).json({ message: 'Invalid refresh token' });
+				return res
+					.status(403)
+					.json({ message: 'Invalid refresh token' });
 			}
 
 			const newAccessToken = generateAccessToken(decoded.userId);
@@ -108,7 +113,9 @@ router.post('/token', async (req, res) => {
 		});
 	} catch (error) {
 		console.error('Error during token refresh:', error.message);
-		return res.status(500).json({ message: 'Server error during token refresh' });
+		return res
+			.status(500)
+			.json({ message: 'Server error during token refresh' });
 	}
 });
 
@@ -118,7 +125,9 @@ router.post('/logout', async (req, res) => {
 
 	try {
 		await deleteRefreshToken(token);
-		return res.status(200).json({ message: 'User successfully logged out.' });
+		return res
+			.status(200)
+			.json({ message: 'User successfully logged out.' });
 	} catch (error) {
 		console.error('Error during logout:', error.message);
 		return res.status(500).json({ message: 'Server error during logout' });
@@ -139,10 +148,14 @@ router.delete('/delete', async (req, res) => {
 		await deleteUserById(userId);
 		await deleteRefreshToken(token);
 
-		return res.status(200).json({ message: 'User account deleted successfully.' });
+		return res
+			.status(200)
+			.json({ message: 'User account deleted successfully.' });
 	} catch (error) {
 		console.error('Error deleting user account', error.message);
-		return res.status(500).json({ message: 'Server error during deleting user account' });
+		return res
+			.status(500)
+			.json({ message: 'Server error during deleting user account' });
 	}
 });
 
