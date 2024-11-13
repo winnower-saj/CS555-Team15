@@ -4,11 +4,12 @@ import {
 	Text,
 	Modal,
 	StyleSheet,
-	TouchableOpacity,
 	Image,
 } from 'react-native';
+import { Colors } from '../../constants/Colors';
+import SmallButton from './SmallButton';
 
-const CustomModal = ({ title, message, button, onClose, visible }) => {
+const CustomModal = ({ title, message, btnTitle, onClose, visible }) => {
 	return (
 		<Modal visible={visible} animationType='fade' transparent={true}>
 			<View style={styles.modalContainer}>
@@ -19,12 +20,7 @@ const CustomModal = ({ title, message, button, onClose, visible }) => {
 					/>
 					<Text style={styles.title}>{title}</Text>
 					<Text style={styles.message}>{message}</Text>
-					<TouchableOpacity
-						onPress={onClose}
-						style={styles.homeButton}
-					>
-						<Text style={styles.buttonText}>{button}</Text>
-					</TouchableOpacity>
+					<SmallButton btnTitle={btnTitle} btnTextColor='#ffffff' handlePress={onClose} />
 				</View>
 			</View>
 		</Modal>
@@ -36,44 +32,36 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+		backgroundColor: 'rgba(256, 256, 256, 1)',
+		padding: '5%',
 	},
 	modalContent: {
-		backgroundColor: '#001d6c', // Dark blue background
-		borderRadius: 20,
-		padding: 30,
+		width: '100%',
 		alignItems: 'center',
-		width: '85%',
+		backgroundColor: Colors.blue.dark,
+		borderRadius: 50,
+		padding: '10%',
 	},
 	checkmark: {
-		width: 50,
-		height: 50,
+		width: 80,
+		height: 80,
 		marginBottom: 20,
-		tintColor: '#9CE67B', // Success green color
+		tintColor: '#adff2f',
 	},
 	title: {
-		fontSize: 24,
-		color: '#FFFFFF',
-		fontWeight: 'bold',
+		fontSize: 35,
+		fontWeight: '600',
+		color: '#ffffff',
 		textAlign: 'center',
-		marginBottom: 10,
+		marginBottom: '10%',
 	},
 	message: {
 		fontSize: 16,
-		color: '#FFFFFF',
+		fontWeight: '500',
+		lineHeight: 25,
+		color: '#ffffff',
 		textAlign: 'center',
-		marginBottom: 30,
-	},
-	homeButton: {
-		backgroundColor: '#377DFF', // Blue color
-		borderRadius: 20,
-		paddingVertical: 10,
-		paddingHorizontal: 40,
-	},
-	buttonText: {
-		color: '#FFFFFF',
-		fontSize: 16,
-		fontWeight: 'bold',
+		marginBottom: '15%',
 	},
 });
 
