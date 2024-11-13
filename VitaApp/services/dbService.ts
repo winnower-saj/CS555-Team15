@@ -1,10 +1,11 @@
 import axios from 'axios';
 
 const Config = {
-    API_URL: 'http://192.168.1.202:3000',
+    API_URL: 'server-public-api',
 };
 
-const signupUser = async (userData) => {
+// Sign up a user by sending thier data to the API
+const signupUser = async (userData: { firstName: string; lastName: string; phoneNumber: string; password: string; }) => {
     try {
         const response = await axios.post(`${Config.API_URL}/auth/signup`,
             userData
@@ -12,15 +13,12 @@ const signupUser = async (userData) => {
 
         return response;
     } catch (error) {
-        console.error(
-            'Error during signup:',
-            error.response?.data || error.message
-        );
         throw error;
     }
 };
 
-const loginUser = async (userData) => {
+// Login a user by sending their phone number and password to the API
+const loginUser = async (userData: { phoneNumber: string; password: string; }) => {
     try {
         const response = await axios.post(`${Config.API_URL}/auth/login`,
             userData
@@ -28,10 +26,6 @@ const loginUser = async (userData) => {
 
         return response;
     } catch (error) {
-        console.error(
-            'Error during login:',
-            error.response?.data || error.message
-        );
         throw error;
     }
 };
@@ -45,11 +39,7 @@ const logoutUser = async (refreshToken: string) => {
 
         return response.data;
     } catch (error) {
-        console.error(
-            'Error during logout:',
-            error.response?.data || error.message
-        );
-        throw new Error('Logout failed. Please try again.');
+        throw error;
     }
 };
 
@@ -62,15 +52,12 @@ const deleteUser = async (userId: string, refreshToken: string) => {
 
         return response.data;
     } catch (error) {
-        console.error(
-            'Error during deleting the account:',
-            error.response?.data || error.message
-        );
-        throw new Error('Deleting the account failed. Please try again.');
+        throw error;
     }
 };
 
-const refreshAccessToken = async (refreshToken) => {
+// Refresh the token
+const refreshAccessToken = async (refreshToken: any) => {
     try {
         const response = await fetch(`${Config.API_URL}/token`, {
             method: 'POST',
