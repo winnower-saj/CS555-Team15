@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const RefreshToken = require('../models/RefreshToken');
+const bcrypt = require('bcryptjs');
 
 // Find user by phone number
 const findUserByPhoneNumber = async (phoneNumber) => {
@@ -68,6 +69,24 @@ const deleteRefreshToken = async (token) => {
 	}
 };
 
+//To Update Password by UserID
+const updateUserPassword = async (isPasswordCorrect, phoneNumber, newPassword) => {
+	try {
+		const user = await User.findOne({ phoneNumber });
+		if (!isPasswordCorrect) 
+			throw new Error('Invalid current password');
+		else
+		{
+			const hashedPassword = await bcrypt.hash(newPassword,12);
+			user.password = hashedPassword;
+		}
+		await user.save();
+		return "Password successfully updated!";
+	} catch (error) {
+		throw new Error('Error updating password: ' + error.message);
+	}
+};
+
 module.exports = {
 	findUserByPhoneNumber,
 	createUser,
@@ -76,4 +95,5 @@ module.exports = {
 	storeRefreshToken,
 	findRefreshToken,
 	deleteRefreshToken,
+	updateUserPassword,
 };

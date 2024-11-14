@@ -9,6 +9,7 @@ const {
 	storeRefreshToken,
 	findRefreshToken,
 	deleteRefreshToken,
+	updateUserPassword,
 } = require('../helpers/dbHelpers.js');
 const router = express.Router();
 const dotenv = require('dotenv');
@@ -28,7 +29,7 @@ router.post('/signup', async (req, res) => {
 			return res.status(400).json({ message: 'User with this phone number already exists' });
 		}
 
-		const hashedPassword = await bcrypt.hash(password, 12);
+		const hashedPassword = await bcrypt.hash(password,10);
 		const newUser = await createUser({
 			firstName,
 			lastName,
@@ -166,6 +167,25 @@ router.delete('/delete', async (req, res) => {
 		res.status(500).json({ message: 'Server error during user deletion' });
 	}
 });
+
+// Password update route
+router.patch('/update-password', async (req, res) => {
+	const { userId, currentPassword, newPassword } = req.body;
+	try {
+		const user = await findUserById(userId)
+		const isPasswordCorrect = user.comparePassword(currentPassword);
+		if (isPasswordCorrect) {
+		const result = await updateUserPassword( isPasswordCorrect, user.phoneNumber, newPassword);
+		return res.status(200).json(result);
+		}
+		else
+			throw new Error('Password is incorrect');
+	} catch (error) {
+		console.error('Error during password update:', error.message);
+		return res.status(500).json({ message: 'Server error during password update' });
+	}
+});
+
 
 // Helper functions for generating tokens
 function generateAccessToken(userId) {
