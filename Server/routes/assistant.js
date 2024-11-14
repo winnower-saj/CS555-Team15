@@ -13,7 +13,7 @@ const deepgram = createClient(DEEPGRAM_API_KEY);
 
 const upload = multer({ dest: 'uploads/' });
 
-router.post('/upload', upload.single('file'), async (req, res) => {
+router.post('/', upload.single('file'), async (req, res) => {
 	console.log('Received a file upload request.');
 	const { path, mimetype, originalname, size } = req.file;
 	console.log(
