@@ -1,13 +1,17 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const authRoutes = require('./routes/auth');
-
+import express from 'express';
 const app = express();
 
+import authRoutes from './routes/auth.js';
+import assistantRoutes from './routes/assistant.js';
+
+import cors from 'cors';
+
 // Middleware to parse JSON
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(cors());
 
 // Routes
 app.use('/auth', authRoutes);
+app.use('/upload', assistantRoutes);
 
-module.exports = app;
+export default app;

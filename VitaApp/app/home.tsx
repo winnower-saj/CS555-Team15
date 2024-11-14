@@ -1,24 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import {
-	View,
-	Text,
-	TouchableOpacity,
-	Image,
-	StyleSheet,
-	Alert,
-} from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { PanGestureHandler } from 'react-native-gesture-handler';
-
-const API_URL = process.env.API_URL;
-const STATUS_URL = process.env.STATUS_URL;
-const API_KEY = process.env.API_KEY;
-const API_KEY_NAME = process.env.API_KEY_NAME;
+import Voice from './voice';
 
 const Home = ({ navigation, route }) => {
 	const { user } = route.params;
-	const [isRunning, setIsRunning] = useState(false);
-	const [loading, setLoading] = useState(false);
 	const [greeting, setGreeting] = useState('');
 
 	const getGreetingMessage = () => {
@@ -29,47 +15,9 @@ const Home = ({ navigation, route }) => {
 		return 'Good Evening!';
 	};
 
-	const fetchStatus = () => {
-		axios
-			.get(STATUS_URL, { headers: { [API_KEY_NAME]: API_KEY } })
-			.then((response) =>
-				setIsRunning(response.data.status === 'running')
-			)
-			.catch(() => Alert.alert('Error', 'Failed to fetch status.'));
-	};
-
 	useEffect(() => {
 		setGreeting(getGreetingMessage());
-		fetchStatus();
 	}, []);
-
-	const handleAssistant = () => {
-		setLoading(true);
-		const action = isRunning ? 'stop' : 'start';
-
-		axios
-			.post(
-				API_URL,
-				{ action },
-				{
-					headers: {
-						[API_KEY_NAME]: API_KEY,
-						'Content-Type': 'application/json',
-					},
-				}
-			)
-			.then((response) => {
-				setIsRunning(!isRunning);
-				Alert.alert('Success', response.data.status);
-			})
-			.catch((error) =>
-				Alert.alert(
-					'Error',
-					error.response?.data?.detail || 'Something went wrong.'
-				)
-			)
-			.finally(() => setLoading(false));
-	};
 
 	const handleGesture = (event) => {
 		const { translationX } = event.nativeEvent;
@@ -119,16 +67,7 @@ const Home = ({ navigation, route }) => {
 							style={styles.userName}
 						>{`${user.firstName} ${user.lastName}`}</Text>
 					</View>
-					<TouchableOpacity
-						style={styles.assistant}
-						onPress={handleAssistant}
-						disabled={loading}
-					>
-						<Image
-							source={require('../assets/images/splash.png')}
-							style={styles.assistantIcon}
-						/>
-					</TouchableOpacity>
+					<Voice />
 					<Text style={styles.assistantText}>Tap to Vita</Text>
 				</View>
 			</View>
@@ -187,24 +126,6 @@ const styles = StyleSheet.create({
 		fontWeight: 'semibold',
 		textAlign: 'center',
 		marginTop: 16,
-	},
-	assistant: {
-		width: 150,
-		height: 150,
-		borderRadius: 75,
-		backgroundColor: '#03045E',
-		alignItems: 'center',
-		justifyContent: 'center',
-		shadowColor: '#000',
-		shadowOffset: { width: 0, height: 4 },
-		shadowOpacity: 0.3,
-		shadowRadius: 5,
-		elevation: 10,
-	},
-	assistantIcon: {
-		width: 80,
-		height: 80,
-		tintColor: '#FFFFFF',
 	},
 	assistantText: {
 		marginTop: 20,

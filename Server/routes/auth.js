@@ -1,7 +1,6 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const {
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import {
 	createUser,
 	deleteUserById,
 	findUserById,
@@ -9,9 +8,9 @@ const {
 	storeRefreshToken,
 	findRefreshToken,
 	deleteRefreshToken,
-} = require('../helpers/dbHelpers.js');
+} from '../helpers/dbHelpers.js';
 const router = express.Router();
-const dotenv = require('dotenv');
+import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -199,4 +198,4 @@ async function createRefreshToken(userId) {
 	return refreshToken;
 }
 
-module.exports = router;
+export default router;
