@@ -6,15 +6,14 @@ import { PanGestureHandler } from 'react-native-gesture-handler';
 const MenuItem = ({ icon, title, onPress }) => (
 	<TouchableOpacity style={styles.menuItem} onPress={onPress}>
 		<View style={styles.menuIconContainer}>
-			<Ionicons name={icon} size={40} color='#FFFFFF' />
+			<Ionicons name={icon} size={40} color='#0077B6' />
 		</View>
 		<Text style={styles.menuText}>{title}</Text>
 		<Ionicons name='chevron-forward' size={36} color='#0077B6' />
 	</TouchableOpacity>
 );
 
-const Profile = ({ navigation, route }) => {
-	const { user } = route.params;
+const Profile = ({ navigation }) => {
 
 	const handleGesture = (event) => {
 		const { translationX } = event.nativeEvent;
@@ -33,47 +32,29 @@ const Profile = ({ navigation, route }) => {
 		>
 			<View style={styles.container}>
 				<View style={styles.header}>
-					<TouchableOpacity
-						onPress={() => navigation.goBack()}
-						style={styles.backButton}
-					>
-						<Ionicons name='arrow-back' size={24} color='#0077B6' />
-					</TouchableOpacity>
-					<Text style={styles.headerTitle}>My Profile</Text>
-				</View>
-
-				<View style={styles.profileSection}>
-					<Image
-						source={require('../assets/images/profile.png')}
-						style={styles.profileImage}
-					/>
-					<Text
-						style={styles.userName}
-					>{`${user.firstName} ${user.lastName}`}</Text>
+					<Text style={styles.headerTitle}>Settings</Text>
 				</View>
 
 				<View style={styles.menu}>
 					<MenuItem
-						icon='person'
-						title='Profile'
-						onPress={() => alert('Navigate to Profile')}
+						icon='bulb-outline'
+						title='Notification Settings'
+						onPress={() => navigation.navigate('soundandvibration')}
 					/>
 					<MenuItem
-						icon='lock-closed'
-						title='Privacy Policy'
-						onPress={() => navigation.navigate('privacypolicy')}
+						icon='key-outline'
+						title='Password Manager'
+						onPress={() => navigation.navigate('passwordmanager')}
 					/>
 					<MenuItem
-						icon='settings'
-						title='Settings'
-						onPress={() => navigation.navigate('settings')}
-					/>
-					<MenuItem
-						icon='log-out'
-						title='Log Out'
-						onPress={() => alert('Logging Out')}
+						icon='trash-outline'
+						title='Delete Account'
+						onPress={() => alert('Deleting Account')}
 					/>
 				</View>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('profile')}>
+        <Text style={styles.backButtonText}>&lt;   Back</Text>
+      </TouchableOpacity>
 			</View>
 		</PanGestureHandler>
 	);
@@ -89,18 +70,12 @@ const styles = StyleSheet.create({
 		position: 'relative',
 		paddingVertical: 36,
 		flexDirection: 'row',
-		alignItems: 'center',
-	},
-	backButton: {
-		position: 'absolute',
-		padding: 8,
-		backgroundColor: '#CAF0F8',
-		borderRadius: 100,
+		alignItems: 'center'
 	},
 	headerTitle: {
 		flex: 1,
 		color: '#0077B6',
-		fontSize: 22,
+		fontSize: 25,
 		fontWeight: 'bold',
 		textAlign: 'center',
 	},
@@ -120,7 +95,7 @@ const styles = StyleSheet.create({
 		color: '#000000',
 	},
 	menu: {
-		marginTop: 36,
+		marginBottom:100,
 	},
 	menuItem: {
 		flexDirection: 'row',
@@ -130,7 +105,6 @@ const styles = StyleSheet.create({
 	menuIconContainer: {
 		width: 70,
 		height: 70,
-		backgroundColor: '#0077B6',
 		borderRadius: 100,
 		alignItems: 'center',
 		justifyContent: 'center',
@@ -142,6 +116,21 @@ const styles = StyleSheet.create({
 		flex: 1,
 		color: '#000000',
 	},
+  backButtonText: {
+    color: 'white',
+    fontSize: 25,
+  },
+  backButton: {
+    position: 'absolute',
+    bottom: 40,
+    alignSelf: 'center',
+    backgroundColor: '#0077C8',
+    borderRadius: 50,
+    width: '70%',
+    height: 70,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 export default Profile;

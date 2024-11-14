@@ -8,6 +8,7 @@ import {
 	storeRefreshToken,
 	findRefreshToken,
 	deleteRefreshToken,
+	updateUserPassword,
 } from '../helpers/dbHelpers.js';
 const router = express.Router();
 import dotenv from 'dotenv';
@@ -176,6 +177,28 @@ router.delete('/delete', async (req, res) => {
 	} catch (error) {
 		console.error('Error during user deletion', error.message);
 		res.status(500).json({ message: 'Server error during user deletion' });
+	}
+});
+
+// Password update route
+router.patch('/update-password', async (req, res) => {
+	const { userId, currentPassword, newPassword } = req.body;
+	try {
+		const user = await findUserById(userId);
+		const isPasswordCorrect = user.comparePassword(currentPassword);
+		if (isPasswordCorrect) {
+			const result = await updateUserPassword(
+				isPasswordCorrect,
+				user.phoneNumber,
+				newPassword
+			);
+			return res.status(200).json(result);
+		} else throw new Error('Password is incorrect');
+	} catch (error) {
+		console.error('Error during password update:', error.message);
+		return res
+			.status(500)
+			.json({ message: 'Server error during password update' });
 	}
 });
 

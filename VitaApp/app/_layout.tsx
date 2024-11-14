@@ -16,6 +16,10 @@ import SignUp from './signup';
 import Home from './home';
 import Profile from './profile';
 import Notifications from './notifications';
+import Settings from './settings';
+import PasswordManager from './passwordmanager';
+import PrivacyPolicy from './privacypolicy';
+import SoundAndVibration from './soundandvibration';
 
 const Drawer = createDrawerNavigator();
 const AuthStack = createStackNavigator();
@@ -171,6 +175,30 @@ const RootLayoutContent = () => {
 			<Drawer.Screen
 				name='notifications'
 				component={Notifications}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='settings'
+				component={Settings}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='passwordmanager'
+				component={PasswordManager}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='privacypolicy'
+				component={PrivacyPolicy}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='soundandvibration'
+				component={SoundAndVibration}
 				options={{ headerShown: false }}
 				initialParams={{ user }}
 			/>
