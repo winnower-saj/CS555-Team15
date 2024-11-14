@@ -22,24 +22,23 @@ const MediumButton = ({ btnTitle, btnBackgroundColor = Colors.blue.primary, marg
 const styles = StyleSheet.create({
     buttonWrapper: {
         overflow: 'hidden',
+        backgroundColor: '#ffffff',
+        borderRadius: 50,
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 1,
         shadowRadius: 10,
         elevation: 15,
-        backgroundColor: '#ffffff',
-        borderRadius: 50,
     },
     button: {
+        width: 260,
         alignItems: 'center',
         borderRadius: 50,
-        paddingTop: '4%',
-        paddingBottom: '4%',
-        width: 260,
+        paddingVertical: '4%',
     },
     buttonText: {
+        fontSize: 24,
         fontWeight: '600',
-        fontSize: 25,
     },
 });
 

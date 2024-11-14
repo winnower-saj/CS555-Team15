@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Modal, StyleSheet } from 'react-native';
-import { Button } from 'react-native-elements';
+import SmallButton from './SmallButton';
+import { Colors } from '../../constants/Colors';
 
 const DeleteAccountModal = ({ showDeleteAccountModal, handleCancel, handleDeleteAccount }) => {
     return (
@@ -16,8 +17,8 @@ const DeleteAccountModal = ({ showDeleteAccountModal, handleCancel, handleDelete
                     <Text style={styles.modalTitle} >Delete your account?</Text>
                     <Text style={styles.modalConfirmationText}>By deleting your account you will lose all your data. This action cannot be undone.</Text>
                     <View style={styles.buttonContainer}>
-                        <Button title='Cancel' buttonStyle={styles.button} titleStyle={styles.buttonText} onPress={handleCancel} />
-                        <Button title='Delete' buttonStyle={styles.button} titleStyle={styles.buttonText} onPress={handleDeleteAccount} />
+                        <SmallButton btnTitle='Cancel' btnTextColor='#ffffff' handlePress={handleCancel}/>
+                        <SmallButton btnTitle='Delete' btnTextColor='#ffffff' handlePress={handleDeleteAccount}/>
                     </View>
                 </View>
             </View>
@@ -30,53 +31,44 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'flex-end',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 119, 182, 0.3)'
+        backgroundColor: 'rgba(0, 119, 182, 0.3)',
     },
     modalContent: {
-        justifyContent: 'space-evenly',
         width: '100%',
         height: '40%',
-        padding: 20,
-        backgroundColor: 'white',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        backgroundColor: '#ffffff',
         borderTopLeftRadius: 50,
         borderTopRightRadius: 50,
-        alignItems: 'center'
+        paddingHorizontal: '5%',
     },
     modalWarning: {
-        backgroundColor: '#FF0000',
-        borderRadius: 50,
-        color: '#FFFFFF',
         width: 120,
-        paddingTop: 5,
-        paddingBottom: 5,
         textAlign: 'center',
-        fontWeight: '600'
+        fontSize: 20,
+        fontWeight: '600',
+        color: '#ffffff',
+        backgroundColor: '#ff0000',
+        borderRadius: 50,
+        paddingVertical: '1%',
     },
     modalTitle: {
         fontSize: 24,
         fontWeight: '600',
-        color: '#0077B6'
+        color: Colors.blue.primary,
     },
     modalConfirmationText: {
+        textAlign: 'center',
         fontSize: 16,
         fontWeight: '600',
-        textAlign: 'center'
+        lineHeight: 25,
     },
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        width: '100%'
+        width: '100%',
     },
-    button: {
-        backgroundColor: '#0077B6',
-        width: 140,
-        height: 60,
-        borderRadius: 50
-    },
-    buttonText: {
-        fontWeight: '600',
-        fontSize: 20
-    }
 });
 
 export default DeleteAccountModal;

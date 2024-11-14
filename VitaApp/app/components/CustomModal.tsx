@@ -43,8 +43,8 @@ const styles = StyleSheet.create({
 		padding: '10%',
 	},
 	checkmark: {
-		width: 80,
-		height: 80,
+		width: 85,
+		height: 85,
 		marginBottom: 20,
 		tintColor: '#adff2f',
 	},

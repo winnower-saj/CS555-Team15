@@ -21,23 +21,22 @@ const SmallButton = ({ btnTitle, btnBackgroundColor = Colors.blue.primary, btnTe
 const styles = StyleSheet.create({
     buttonWrapper: {
         overflow: 'hidden',
+        backgroundColor: '#ffffff',
+        borderRadius: 50,
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 1,
         shadowRadius: 10,
         elevation: 15,
-        backgroundColor: '#ffffff',
-        borderRadius: 50,
     },
     button: {
-        borderRadius: 50,
-        paddingTop: '3%',
-        paddingBottom: '3%',
         width: 160,
+        borderRadius: 50,
+        paddingVertical: '3%',
     },
     buttonText: {
-        fontWeight: 'bold',
-        fontSize: 25,
+        fontSize: 24,
+        fontWeight: '600',
     },
 });
 
