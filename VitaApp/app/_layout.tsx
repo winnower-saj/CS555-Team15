@@ -16,6 +16,9 @@ import SignUp from './signup';
 import Home from './home';
 import Profile from './profile';
 import Notifications from './notifications';
+import DeleteAccount from './delete-account';
+import PrivacyPolicy from './privacypolicy';
+import PasswordManager from './passwordmanager';
 
 const Drawer = createDrawerNavigator();
 const AuthStack = createStackNavigator();
@@ -171,6 +174,24 @@ const RootLayoutContent = () => {
 			<Drawer.Screen
 				name='notifications'
 				component={Notifications}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='privacypolicy'
+				component={PrivacyPolicy}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='passwordmanager'
+				component={PasswordManager}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='delete-account'
+				component={DeleteAccount}
 				options={{ headerShown: false }}
 				initialParams={{ user }}
 			/>
