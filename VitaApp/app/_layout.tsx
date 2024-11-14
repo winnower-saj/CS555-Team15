@@ -1,13 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { AppState, AppStateStatus } from 'react-native';
+import { AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SplashScreen from 'expo-splash-screen';
-import { Stack, useRouter } from 'expo-router';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createStackNavigator } from '@react-navigation/stack';
+import { useRouter } from 'expo-router';
 import { Asset } from 'expo-asset';
 import { useFonts } from 'expo-font';
 import AppIntroduction from './components/AppIntroduction';
 import { AuthProvider, useAuth } from '../context/authContext';
 import { getUserSession } from '../services/authService';
+import LoginSignUp from './index';
+import Login from './login';
+import SignUp from './signup';
+import Home from './home';
+import Profile from './profile';
+import Notifications from './notifications';
+import Settings from './settings';
+import PasswordManager from './passwordmanager';
+import PrivacyPolicy from './privacypolicy';
+import SoundAndVibration from './soundandvibration';
+
+const Drawer = createDrawerNavigator();
+const AuthStack = createStackNavigator();
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -29,19 +44,17 @@ const RootLayoutContent = () => {
 	});
 
 	useEffect(() => {
-		const handleAppStateChange = (nextAppState: AppStateStatus) => {
-			if (appState === 'background' && nextAppState === 'active') {
-				if (user) {
-					while (router.canGoBack()) {
-						router.back();
-					}
-					router.replace('/home');
+		const handleAppStateChange = (nextAppState) => {
+			if (
+				appState === 'background' &&
+				nextAppState === 'active' &&
+				user
+			) {
+				while (router.canGoBack()) {
+					router.back();
 				}
+				router.replace('/home');
 			}
-
-			if (appState === 'active' && nextAppState === 'background') {
-			}
-
 			setAppState(nextAppState);
 		};
 
@@ -49,12 +62,8 @@ const RootLayoutContent = () => {
 			'change',
 			handleAppStateChange
 		);
-
-		// Cleanup the event listener when the component is unmounted
-		return () => {
-			subscription.remove();
-		};
-	}, [appState]);
+		return () => subscription.remove();
+	}, [appState, user]);
 
 	const loadUserData = async () => {
 		const session = await getUserSession();
@@ -79,6 +88,8 @@ const RootLayoutContent = () => {
 				require('../assets/images/wellbeing.png'),
 				require('../assets/images/logo-blue.png'),
 				require('../assets/images/check.png'),
+				require('../assets/images/profile.png'),
+				require('../assets/images/notifications.png'),
 			]);
 			// Check if the app has been opened before
 			const hasOpenedBefore = await AsyncStorage.getItem(
@@ -97,33 +108,15 @@ const RootLayoutContent = () => {
 	}, []);
 
 	useEffect(() => {
-		const hideSplashScreen = async () => {
-			if (isFontsLoaded && isLoadDataComplete) {
-				setIsAppReady(true);
-			}
-		};
-		hideSplashScreen();
-	}, [isFontsLoaded, isLoadDataComplete]);
-
-	useEffect(() => {
-		if (isAppReady) {
-			if (user) {
-				while (router.canGoBack()) {
-					router.back();
-				}
-				router.replace('/home');
-			}
-			SplashScreen.hideAsync().catch((error) =>
-				console.warn('Error hiding splash screen', error)
-			);
+		if (isFontsLoaded && isLoadDataComplete) {
+			setIsAppReady(true);
 		}
-	}, [isAppReady]);
+	}, [isFontsLoaded, isLoadDataComplete]);
 
 	if (!isAppReady) {
 		return null;
 	}
 
-	// If the app has not been opened before, show the AppIntroduction component
 	if (!hasOpenedAppBefore && !user) {
 		return (
 			<AppIntroduction
@@ -135,17 +128,81 @@ const RootLayoutContent = () => {
 		);
 	}
 
-	return user ? (
-		<Stack initialRouteName='home'>
-			<Stack.Screen name='home' options={{ headerShown: false }} />
-			<Stack.Screen name='delete-account' options={{ headerShown: false }} />
-		</Stack>
-	) : (
-		<Stack>
-			<Stack.Screen name='index' options={{ headerShown: false }} />
-			<Stack.Screen name='signup' options={{ headerShown: false }} />
-			<Stack.Screen name='login' options={{ headerShown: false }} />
-		</Stack>
+	// If user is not logged in, show authentication stack
+	if (!user) {
+		return (
+			<AuthStack.Navigator>
+				<AuthStack.Screen
+					name='index'
+					component={LoginSignUp}
+					options={{ headerShown: false }}
+				/>
+				<AuthStack.Screen
+					name='login'
+					component={Login}
+					options={{ headerShown: false }}
+				/>
+				<AuthStack.Screen
+					name='signup'
+					component={SignUp}
+					options={{ headerShown: false }}
+				/>
+			</AuthStack.Navigator>
+		);
+	}
+
+	// Drawer Navigator for logged-in users
+	return (
+		<Drawer.Navigator
+			initialRouteName='home'
+			screenOptions={{
+				drawerType: 'slide',
+				swipeEnabled: true,
+			}}
+		>
+			<Drawer.Screen
+				name='home'
+				component={Home}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='profile'
+				component={Profile}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='notifications'
+				component={Notifications}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='settings'
+				component={Settings}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='passwordmanager'
+				component={PasswordManager}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='privacypolicy'
+				component={PrivacyPolicy}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='soundandvibration'
+				component={SoundAndVibration}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+		</Drawer.Navigator>
 	);
 };
 

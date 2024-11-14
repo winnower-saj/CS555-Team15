@@ -4,7 +4,7 @@ const connectMongoDB = require('./config/mongoDB');
 
 dotenv.config();
 
-const HOST = '192.168.1.202';
+const HOST = '10.0.0.147';
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {

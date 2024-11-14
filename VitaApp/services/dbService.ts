@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const Config = {
-    API_URL: 'http://192.168.1.202:3000',
+    API_URL: 'http://10.0.0.147:3000',
 };
 
 const signupUser = async (userData) => {
@@ -70,6 +70,21 @@ const deleteUser = async (userId: string, refreshToken: string) => {
     }
 };
 
+//Compare and update password
+const updatePassword = async (userId, currentPassword, newPassword) => {
+    try {
+        const response = await axios.patch(`${Config.API_URL}/auth/update-password`, {
+            userId,
+            currentPassword,
+            newPassword,
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error updating password:', error.response?.data || error.message);
+        throw new Error(error.response?.data.message || 'Password update failed. Please try again.');
+    }
+};
+
 const refreshAccessToken = async (refreshToken) => {
     try {
         const response = await fetch(`${Config.API_URL}/token`, {
@@ -91,4 +106,4 @@ const refreshAccessToken = async (refreshToken) => {
     }
 };
 
-export { signupUser, loginUser, logoutUser, deleteUser, refreshAccessToken };
+export { signupUser, loginUser, logoutUser, deleteUser, refreshAccessToken, updatePassword };
