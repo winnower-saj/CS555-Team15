@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const Config = {
-    API_URL: 'http://192.168.1.202:3000',
+    API_URL: 'http://<SERVER_IP>:3000',
 };
 
 const signupUser = async (userData) => {

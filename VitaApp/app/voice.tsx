@@ -6,11 +6,12 @@ import {
 	StyleSheet,
 	TouchableOpacity,
 	Image,
+	Platform
 } from 'react-native';
-// import { Audio } from 'expo-av';
-// import * as FileSystem from 'expo-file-system';
-// import { Buffer } from 'buffer';
-// global.Buffer = Buffer;
+import { Audio } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
+import { Buffer } from 'buffer';
+global.Buffer = Buffer;
 import {
 	clearConversation,
 	fetchTranscripts,
@@ -29,21 +30,21 @@ export default function AudioMessageComponent() {
 	const startRecording = async () => {
 		console.log('Requesting microphone permissions...');
 		try {
-			// const { status } = await Audio.requestPermissionsAsync();
-			// if (status !== 'granted') {
-			// 	Alert.alert('Permission to access microphone is required!');
-			// 	return;
-			// }
-			// console.log('Microphone permissions granted.');
+			const { status } = await Audio.requestPermissionsAsync();
+			if (status !== 'granted') {
+				Alert.alert('Permission to access microphone is required!');
+				return;
+			}
+			console.log('Microphone permissions granted.');
 
-			// await Audio.setAudioModeAsync({
-			// 	allowsRecordingIOS: true,
-			// 	playsInSilentModeIOS: true,
-			// });
+			await Audio.setAudioModeAsync({
+				allowsRecordingIOS: true,
+				playsInSilentModeIOS: true,
+			});
 
-			// const { recording } = await Audio.Recording.createAsync(
-			// 	Audio.RecordingOptionsPresets.HIGH_QUALITY
-			// );
+			const { recording } = await Audio.Recording.createAsync(
+				Audio.RecordingOptionsPresets.HIGH_QUALITY
+			);
 			recordingRef.current = recording;
 			setRecording(recording);
 			console.log('Recording started.');
@@ -69,11 +70,11 @@ export default function AudioMessageComponent() {
 		console.log('Preparing to upload audio...');
 		try {
 			const formData = new FormData();
-			// formData.append('file', {
-			// 	uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
-			// 	name: 'audiofile.m4a',
-			// 	type: 'audio/m4a',
-			// });
+			formData.append('file', {
+				uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
+				name: 'audiofile.m4a',
+				type: 'audio/m4a',
+			});
 
 			console.log('Uploading audio to server...');
 			const response = await clearConversation(formData);
@@ -148,18 +149,18 @@ export default function AudioMessageComponent() {
 			}
 
 			const audioData = await response.arrayBuffer();
-			// const fileUri = FileSystem.cacheDirectory + 'tts-audio.mp3';
+			const fileUri = FileSystem.cacheDirectory + 'tts-audio.mp3';
 
-			// await FileSystem.writeAsStringAsync(
-			// 	fileUri,
-			// 	Buffer.from(audioData).toString('base64'),
-			// 	{
-			// 		encoding: FileSystem.EncodingType.Base64,
-			// 	}
-			// );
+			await FileSystem.writeAsStringAsync(
+				fileUri,
+				Buffer.from(audioData).toString('base64'),
+				{
+					encoding: FileSystem.EncodingType.Base64,
+				}
+			);
 
-			// const { sound } = await Audio.Sound.createAsync({ uri: fileUri });
-			// await sound.playAsync();
+			const { sound } = await Audio.Sound.createAsync({ uri: fileUri });
+			await sound.playAsync();
 		} catch (error) {
 			console.error('Error with TTS:', error);
 		}
