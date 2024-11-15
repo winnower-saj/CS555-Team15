@@ -26,7 +26,10 @@ const Login = () => {
 	});
 
 	// Validate user details
-	const isValidDetails = (userDetails: { phoneNumber: string; password: string; }) => {
+	const isValidDetails = (userDetails: {
+		phoneNumber: string;
+		password: string;
+	}) => {
 		let { phoneNumber, password } = userDetails;
 
 		let isValid = true;
@@ -60,13 +63,14 @@ const Login = () => {
 		});
 
 		if (!isValid) {
-			Alert.alert('⚠️ Login Error',
+			Alert.alert(
+				'⚠️ Login Error',
 				'\nProvide a valid phone number and password.',
 				[
 					{
 						text: 'Close',
 						onPress: () => console.log('Login Error: Alert Closed'),
-					}
+					},
 				]
 			);
 
@@ -80,23 +84,44 @@ const Login = () => {
 			});
 
 			if (response.status === 200) {
-				const { accessToken, refreshToken, userId, firstName, lastName, phoneNumber } = response.data;
+				const {
+					userId,
+					accessToken,
+					refreshToken,
+					firstName,
+					lastName,
+					phoneNumber,
+				} = response.data;
 
-				await login(userId, accessToken, refreshToken, firstName, lastName, phoneNumber);
+				await login(
+					userId,
+					accessToken,
+					refreshToken,
+					firstName,
+					lastName,
+					phoneNumber
+				);
+				while (router.canGoBack()) {
+					router.back();
+				}
 				router.replace('/home');
 			}
 		} catch (error) {
-			Alert.alert('⚠️ Login Error',
+			Alert.alert(
+				'⚠️ Login Error',
 				'\nFailed to login. Please try again.',
 				[
 					{
 						text: 'Close',
 						onPress: () => console.log('Login Error: Alert Closed'),
-					}
+					},
 				]
 			);
 
-			console.error('Login Error:', error.response?.data || error.message);
+			console.error(
+				'Login Error:',
+				error.response?.data || error.message
+			);
 		}
 	};
 
@@ -105,30 +130,41 @@ const Login = () => {
 			<Text style={styles.title}>Welcome Back!</Text>
 			<Text style={styles.subtitle}>We're glad to see you again!</Text>
 
-			<Text style={styles.loginText} testID='login-heading'>Log In</Text>
+			<Text style={styles.loginText} testID='login-heading'>
+				Log In
+			</Text>
 			<TextInput
 				style={[styles.input, errors.phoneNumber && styles.inputError]}
 				placeholder='Phone Number'
 				value={phoneNumber}
 				keyboardType='phone-pad'
 				onChangeText={setPhoneNumber}
-				underlineColorAndroid="transparent">
-			</TextInput>
+				underlineColorAndroid='transparent'
+			></TextInput>
 
 			<PasswordInput
 				value={password}
 				placeholder='Password'
 				onChange={setPassword}
-				hasError={errors.password}>
-			</PasswordInput>
+				hasError={errors.password}
+			></PasswordInput>
 
 			<View style={styles.loginContainer}>
-				<TouchableOpacity onPress={() => router.navigate('/forgot-password')}>
-					<Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+				<TouchableOpacity
+					onPress={() => router.navigate('/forgot-password')}
+				>
+					<Text style={styles.forgotPasswordText}>
+						Forgot Password?
+					</Text>
 				</TouchableOpacity>
 			</View>
 
-			<MediumButton btnTitle='Log In' btnBackgroundColor={Colors.blue.dark} marginTop={20} handlePress={handleLogin} />
+			<MediumButton
+				btnTitle='Log In'
+				btnBackgroundColor={Colors.blue.dark}
+				marginTop={20}
+				handlePress={handleLogin}
+			/>
 
 			<View style={styles.signUpContainer}>
 				<Text style={styles.noAccount}>Don't have an account? </Text>

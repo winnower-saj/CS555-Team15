@@ -19,6 +19,10 @@ import Notifications from './notifications';
 import DeleteAccount from './delete-account';
 import PrivacyPolicy from './privacypolicy';
 import PasswordManager from './passwordmanager';
+import Settings from './settings';
+import PasswordManager from './passwordmanager';
+import PrivacyPolicy from './privacypolicy';
+import SoundAndVibration from './soundandvibration';
 
 const Drawer = createDrawerNavigator();
 const AuthStack = createStackNavigator();
@@ -184,6 +188,12 @@ const RootLayoutContent = () => {
 				initialParams={{ user }}
 			/>
 			<Drawer.Screen
+				name='settings'
+				component={Settings}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
 				name='passwordmanager'
 				component={PasswordManager}
 				options={{ headerShown: false }}
@@ -192,6 +202,18 @@ const RootLayoutContent = () => {
 			<Drawer.Screen
 				name='delete-account'
 				component={DeleteAccount}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='privacypolicy'
+				component={PrivacyPolicy}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='soundandvibration'
+				component={SoundAndVibration}
 				options={{ headerShown: false }}
 				initialParams={{ user }}
 			/>

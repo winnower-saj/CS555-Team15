@@ -1,7 +1,6 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const {
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import {
 	createUser,
 	deleteUserById,
 	findUserById,
@@ -9,9 +8,10 @@ const {
 	storeRefreshToken,
 	findRefreshToken,
 	deleteRefreshToken,
-} = require('../helpers/dbHelpers.js');
+	updateUserPassword,
+} from '../helpers/dbHelpers.js';
 const router = express.Router();
-const dotenv = require('dotenv');
+import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -180,6 +180,28 @@ router.delete('/delete', async (req, res) => {
 	}
 });
 
+// Password update route
+router.patch('/update-password', async (req, res) => {
+	const { userId, currentPassword, newPassword } = req.body;
+	try {
+		const user = await findUserById(userId);
+		const isPasswordCorrect = user.comparePassword(currentPassword);
+		if (isPasswordCorrect) {
+			const result = await updateUserPassword(
+				isPasswordCorrect,
+				user.phoneNumber,
+				newPassword
+			);
+			return res.status(200).json(result);
+		} else throw new Error('Password is incorrect');
+	} catch (error) {
+		console.error('Error during password update:', error.message);
+		return res
+			.status(500)
+			.json({ message: 'Server error during password update' });
+	}
+});
+
 // Helper functions for generating tokens
 function generateAccessToken(userId) {
 	return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '15m' });
@@ -199,4 +221,4 @@ async function createRefreshToken(userId) {
 	return refreshToken;
 }
 
-module.exports = router;
+export default router;

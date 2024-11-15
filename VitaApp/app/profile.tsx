@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
+import {
+	View,
+	Text,
+	TouchableOpacity,
+	Image,
+	StyleSheet,
+	Alert,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import LogoutModal from './components/LogoutModal';
@@ -14,7 +21,11 @@ const MenuItem = ({ menuIcon, menuTitle, handleOnPress }) => (
 			<Ionicons name={menuIcon} size={40} color='#FFFFFF' />
 		</View>
 		<Text style={styles.menuText}>{menuTitle}</Text>
-		<Ionicons name='chevron-forward' size={32} color={Colors.blue.primary} />
+		<Ionicons
+			name='chevron-forward'
+			size={32}
+			color={Colors.blue.primary}
+		/>
 	</TouchableOpacity>
 );
 
@@ -23,7 +34,7 @@ const Profile = ({ navigation, route }) => {
 	const { logout } = useAuth();
 	const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-	const handleGesture = (event: { nativeEvent: { translationX: any; }; }) => {
+	const handleGesture = (event: { nativeEvent: { translationX: any } }) => {
 		const { translationX } = event.nativeEvent;
 
 		// Detect left swipe
@@ -35,7 +46,7 @@ const Profile = ({ navigation, route }) => {
 	// Show the LogoutModal
 	const handleLogoutPress = () => {
 		setShowLogoutModal(true);
-	}
+	};
 
 	// Hide the LogoutModal
 	const handleCancel = () => {
@@ -53,19 +64,23 @@ const Profile = ({ navigation, route }) => {
 
 				// Clear local session
 				await logout();
-
 			} catch (error) {
-				Alert.alert('⚠️ Unable to Process Request',
+				Alert.alert(
+					'⚠️ Unable to Process Request',
 					'\nCannot logout right now. Please try again later.',
 					[
 						{
 							text: 'Close',
-							onPress: () => console.log('Logout Error: Alert Closed'),
-						}
+							onPress: () =>
+								console.log('Logout Error: Alert Closed'),
+						},
 					]
 				);
 
-				console.error('Logout error:', error.response?.data || error.message);
+				console.error(
+					'Logout error:',
+					error.response?.data || error.message
+				);
 
 				return;
 			}
@@ -84,14 +99,20 @@ const Profile = ({ navigation, route }) => {
 	return (
 		<PanGestureHandler
 			onGestureEvent={handleGesture}
-			onHandlerStateChange={handleGesture}>
+			onHandlerStateChange={handleGesture}
+		>
 			<View style={styles.container}>
 				<View style={styles.header}>
 					<Text style={styles.headerTitle}>My Profile</Text>
 					<TouchableOpacity
 						onPress={() => navigation.navigate('home')}
-						style={styles.backButton}>
-						<Ionicons name='arrow-forward' size={30} color={Colors.blue.primary} />
+						style={styles.backButton}
+					>
+						<Ionicons
+							name='arrow-forward'
+							size={30}
+							color={Colors.blue.primary}
+						/>
 					</TouchableOpacity>
 				</View>
 
@@ -114,22 +135,40 @@ const Profile = ({ navigation, route }) => {
 					<MenuItem
 						menuIcon='lock-closed'
 						menuTitle='Privacy Policy'
-						handleOnPress={() => navigation.navigate('privacypolicy')}
+						handleOnPress={() =>
+							navigation.navigate('privacypolicy')
+						}
 					/>
 					<MenuItem
 						menuIcon='settings'
 						menuTitle='Settings'
 						handleOnPress={() => navigation.navigate('settings')}
 					/>
-					<TouchableOpacity style={styles.menuItem} onPress={handleLogoutPress}>
+					<MenuItem
+						menuIcon='log-out'
+						menuTitle='Log Out'
+						handleOnPress={() => alert('Logging Out')}
+					/>
+					<TouchableOpacity
+						style={styles.menuItem}
+						onPress={handleLogoutPress}
+					>
 						<View style={styles.menuIconContainer}>
-							<Ionicons name='log-out' size={40} color='#ffffff' />
+							<Ionicons
+								name='log-out'
+								size={40}
+								color='#ffffff'
+							/>
 						</View>
 						<Text style={styles.menuText}>Log Out</Text>
 					</TouchableOpacity>
 				</View>
 
-				<LogoutModal showLogoutModal={showLogoutModal} handleCancel={handleCancel} handleLogout={handleLogout} />
+				<LogoutModal
+					showLogoutModal={showLogoutModal}
+					handleCancel={handleCancel}
+					handleLogout={handleLogout}
+				/>
 			</View>
 		</PanGestureHandler>
 	);
@@ -146,7 +185,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'space-between',
 		paddingHorizontal: '1%',
-		paddingVertical: "9%",
+		paddingVertical: '9%',
 	},
 	headerTitle: {
 		flex: 1,

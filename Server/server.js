@@ -1,10 +1,10 @@
-const dotenv = require('dotenv');
-const app = require('./app');
-const connectMongoDB = require('./config/mongoDB');
+import dotenv from 'dotenv';
+import app from './app.js';
+import connectMongoDB from './config/mongoDB.js';
 
 dotenv.config();
 
-const HOST = '192.168.1.202';
+const HOST = '10.0.0.147';
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
