@@ -12,6 +12,6 @@ app.use(cors());
 
 // Routes
 app.use('/auth', authRoutes);
-app.use('/upload', assistantRoutes);
+app.use('/uploads', assistantRoutes);
 
 export default app;
