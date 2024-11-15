@@ -71,7 +71,6 @@ npm start
 ### 3. Set Up the Voice Assistant Backend
 1. Open another terminal and navigate to the backend directory:
 ```bash
-Copy code
 cd ../voice-assistant-backend
 ```
 2. Create an .env file in this directory and add the following:
