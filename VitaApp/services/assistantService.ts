@@ -1,5 +1,5 @@
 const ELEVEN_LABS_API_KEY =
-	'sk_7215e9640df21cd3771dd1922cd9686d8a5e389d6349f9df';
+	'sk_540dd348ff3604c77c8dcb85d7112437b193e80c7abaa55e';
 const ELEVEN_LABS_VOICE_ID = 'pMsXgVXv3BLzUgSXRplE';
 
 const Config = {

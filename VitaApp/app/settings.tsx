@@ -49,7 +49,7 @@ const Profile = ({ navigation }) => {
 					<MenuItem
 						icon='trash-outline'
 						title='Delete Account'
-						onPress={() => alert('Deleting Account')}
+						onPress={() => navigation.navigate('delete-account')}
 					/>
 				</View>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('profile')}>
