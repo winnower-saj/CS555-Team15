@@ -144,11 +144,6 @@ const Profile = ({ navigation, route }) => {
 						menuTitle='Settings'
 						handleOnPress={() => navigation.navigate('settings')}
 					/>
-					<MenuItem
-						menuIcon='log-out'
-						menuTitle='Log Out'
-						handleOnPress={() => alert('Logging Out')}
-					/>
 					<TouchableOpacity
 						style={styles.menuItem}
 						onPress={handleLogoutPress}
