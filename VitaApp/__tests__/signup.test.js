@@ -1,16 +1,11 @@
 import React from 'react';
-import axios from 'axios';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 import SignUp from '../app/signup';
 import { useRouter } from 'expo-router';
 import { AuthProvider } from '../context/authContext';
+import { signupUser } from '../services/dbService';
 
-const mockedConfig = {
-	API_URL: 'mocked-api-url',
-};
-
-jest.mock('axios');
 jest.mock('@react-native-async-storage/async-storage', () => ({
 	setItem: jest.fn(() => Promise.resolve()),
 	getItem: jest.fn(() => Promise.resolve(null)),
@@ -19,14 +14,10 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 	getAllKeys: jest.fn(() => Promise.resolve([])),
 }));
 
+jest.mock('../services/dbService');
 jest.spyOn(Alert, 'alert');
-
 jest.mock('expo-router', () => ({
 	useRouter: jest.fn(),
-}));
-
-jest.mock('react-native-config', () => ({
-	Config: mockedConfig,
 }));
 
 const renderWithAuthProvider = (component) => {
@@ -38,7 +29,7 @@ describe('SignUp Component', () => {
 
 	beforeEach(() => {
 		routerMock = {
-			push: jest.fn(),
+			replace: jest.fn(),
 			navigate: jest.fn(),
 		};
 		useRouter.mockReturnValue(routerMock);
@@ -51,7 +42,7 @@ describe('SignUp Component', () => {
 		);
 		expect(getByPlaceholderText('First Name')).toBeTruthy();
 		expect(getByPlaceholderText('Last Name')).toBeTruthy();
-		expect(getByPlaceholderText('Phone number')).toBeTruthy();
+		expect(getByPlaceholderText('Phone Number')).toBeTruthy();
 		expect(getByPlaceholderText('Password')).toBeTruthy();
 		expect(getByPlaceholderText('Confirm Password')).toBeTruthy();
 		expect(getByText('Sign Up')).toBeTruthy();
@@ -63,8 +54,9 @@ describe('SignUp Component', () => {
 
 		await waitFor(() => {
 			expect(Alert.alert).toHaveBeenCalledWith(
-				'Error',
-				'Please correct the highlighted fields'
+				expect.stringContaining('⚠️ Signup Error'),
+				expect.any(String),
+				expect.any(Array)
 			);
 		});
 	});
@@ -77,7 +69,7 @@ describe('SignUp Component', () => {
 		fireEvent.changeText(getByPlaceholderText('First Name'), 'John');
 		fireEvent.changeText(getByPlaceholderText('Last Name'), 'Doe');
 		fireEvent.changeText(
-			getByPlaceholderText('Phone number'),
+			getByPlaceholderText('Phone Number'),
 			'1234567890'
 		);
 		fireEvent.changeText(getByPlaceholderText('Password'), 'password123');
@@ -90,16 +82,16 @@ describe('SignUp Component', () => {
 
 		await waitFor(() => {
 			expect(Alert.alert).toHaveBeenCalledWith(
-				'Error',
-				'Please correct the highlighted fields'
+				expect.stringContaining('⚠️ Signup Error'),
+				expect.any(String),
+				expect.any(Array)
 			);
 		});
 	});
 
-
 	it('shows an error if the API call fails', async () => {
-		axios.post.mockRejectedValue({
-			response: { data: 'Sign-up failed' },
+		signupUser.mockRejectedValue({
+			response: { data: { message: 'Sign-up failed' } },
 		});
 
 		const { getByPlaceholderText, getByText } = renderWithAuthProvider(
@@ -109,21 +101,22 @@ describe('SignUp Component', () => {
 		fireEvent.changeText(getByPlaceholderText('First Name'), 'John');
 		fireEvent.changeText(getByPlaceholderText('Last Name'), 'Doe');
 		fireEvent.changeText(
-			getByPlaceholderText('Phone number'),
+			getByPlaceholderText('Phone Number'),
 			'1234567890'
 		);
-		fireEvent.changeText(getByPlaceholderText('Password'), 'password123');
+		fireEvent.changeText(getByPlaceholderText('Password'), 'Password1!');
 		fireEvent.changeText(
 			getByPlaceholderText('Confirm Password'),
-			'password123'
+			'Password1!'
 		);
 
 		fireEvent.press(getByText('Sign Up'));
 
 		await waitFor(() => {
 			expect(Alert.alert).toHaveBeenCalledWith(
-				'Error',
-				'Failed to create account. Please try again.'
+				expect.stringContaining('⚠️ Signup Error'),
+				expect.any(String),
+				expect.any(Array)
 			);
 		});
 	});

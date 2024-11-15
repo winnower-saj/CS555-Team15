@@ -35,6 +35,7 @@ const Home = ({ navigation, route }) => {
 		<PanGestureHandler
 			onGestureEvent={handleGesture}
 			onHandlerStateChange={handleGesture}
+			testID='panGestureHandler'
 		>
 			<View style={styles.container}>
 				<View style={styles.navigation}>
