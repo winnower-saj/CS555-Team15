@@ -7,56 +7,81 @@ import {
 	StyleSheet,
 	Alert,
 } from 'react-native';
-import { Icon, Button } from 'react-native-elements';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/authContext';
 import { loginUser } from '../services/dbService';
+import PasswordInput from './components/PasswordInput';
+import MediumButton from './components/MediumButton';
+import { Colors } from '../constants/Colors';
+import { isValidPhoneNumber } from 'libphonenumber-js';
 
 const Login = () => {
 	const router = useRouter();
 	const { login } = useAuth();
-	const [contactInfo, setContactInfo] = useState('');
+	const [phoneNumber, setPhoneNumber] = useState('');
 	const [password, setPassword] = useState('');
-	const [showPassword, setShowPassword] = useState(true);
 	const [errors, setErrors] = useState({
-		contactInfo: false,
+		phoneNumber: false,
 		password: false,
 	});
 
-	const handleLogIn = async () => {
-		const trimmedContactInfo = contactInfo.trim();
-		const trimmedPassword = password.trim();
+	// Validate user details
+	const isValidDetails = (userDetails: {
+		phoneNumber: string;
+		password: string;
+	}) => {
+		let { phoneNumber, password } = userDetails;
 
-		let valid = true;
+		let isValid = true;
 		const newErrors = {
-			contactInfo: false,
+			phoneNumber: false,
 			password: false,
 		};
 
-		if (!trimmedContactInfo) {
-			newErrors.contactInfo = true;
-			valid = false;
+		if (!phoneNumber || !isValidPhoneNumber(phoneNumber, 'US')) {
+			newErrors.phoneNumber = true;
+			isValid = false;
 		}
 
-		if (!trimmedPassword) {
+		if (!password) {
 			newErrors.password = true;
-			valid = false;
+			isValid = false;
 		}
 
 		setErrors(newErrors);
+		return isValid;
+	};
 
-		if (!valid) {
-			Alert.alert('Error', 'Please fill in all fields');
+	// Login the user
+	const handleLogin = async () => {
+		const trimmedPhoneNumber = phoneNumber.trim();
+		const trimmedPassword = password.trim();
+
+		const isValid = isValidDetails({
+			phoneNumber: trimmedPhoneNumber,
+			password: trimmedPassword,
+		});
+
+		if (!isValid) {
+			Alert.alert(
+				'⚠️ Login Error',
+				'\nProvide a valid phone number and password.',
+				[
+					{
+						text: 'Close',
+						onPress: () => console.log('Login Error: Alert Closed'),
+					},
+				]
+			);
+
 			return;
 		}
 
 		try {
-			const userData = {
-				phoneNumber: trimmedContactInfo,
+			const response = await loginUser({
+				phoneNumber: trimmedPhoneNumber,
 				password: trimmedPassword,
-			};
-
-			const response = await loginUser(userData);
+			});
 
 			if (response.status === 200) {
 				const {
@@ -67,7 +92,6 @@ const Login = () => {
 					lastName,
 					phoneNumber,
 				} = response.data;
-				console.log(firstName);
 
 				await login(
 					userId,
@@ -83,11 +107,21 @@ const Login = () => {
 				router.replace('/home');
 			}
 		} catch (error) {
+			Alert.alert(
+				'⚠️ Login Error',
+				'\nFailed to login. Please try again.',
+				[
+					{
+						text: 'Close',
+						onPress: () => console.log('Login Error: Alert Closed'),
+					},
+				]
+			);
+
 			console.error(
-				'Error during login:',
+				'Login Error:',
 				error.response?.data || error.message
 			);
-			Alert.alert('Error', 'Failed to log in. Please try again.');
 		}
 	};
 
@@ -96,40 +130,24 @@ const Login = () => {
 			<Text style={styles.title}>Welcome Back!</Text>
 			<Text style={styles.subtitle}>We're glad to see you again!</Text>
 
+			<Text style={styles.loginText} testID='login-heading'>
+				Log In
+			</Text>
 			<TextInput
-				style={[styles.input, errors.contactInfo && styles.inputError]}
+				style={[styles.input, errors.phoneNumber && styles.inputError]}
 				placeholder='Phone Number'
-				value={contactInfo}
+				value={phoneNumber}
 				keyboardType='phone-pad'
-				onChangeText={setContactInfo}
-			/>
+				onChangeText={setPhoneNumber}
+				underlineColorAndroid='transparent'
+			></TextInput>
 
-			<View
-				style={[
-					styles.passwordContainer,
-					errors.password && styles.inputError,
-				]}
-			>
-				<TextInput
-					style={styles.inputPassword}
-					placeholder='Password'
-					value={password}
-					secureTextEntry={showPassword}
-					onChangeText={setPassword}
-				/>
-				<Icon
-					name={showPassword ? 'eye' : 'eye-off'}
-					type='feather'
-					size={24}
-					onPress={() => setShowPassword(!showPassword)}
-				/>
-			</View>
-
-			<Button
-				title='Log In'
-				buttonStyle={styles.LogInButton}
-				onPress={handleLogIn}
-			/>
+			<PasswordInput
+				value={password}
+				placeholder='Password'
+				onChange={setPassword}
+				hasError={errors.password}
+			></PasswordInput>
 
 			<View style={styles.loginContainer}>
 				<TouchableOpacity
@@ -141,8 +159,15 @@ const Login = () => {
 				</TouchableOpacity>
 			</View>
 
+			<MediumButton
+				btnTitle='Log In'
+				btnBackgroundColor={Colors.blue.dark}
+				marginTop={20}
+				handlePress={handleLogin}
+			/>
+
 			<View style={styles.signUpContainer}>
-				<Text>Don't have an account? </Text>
+				<Text style={styles.noAccount}>Don't have an account? </Text>
 				<TouchableOpacity onPress={() => router.navigate('/signup')}>
 					<Text style={styles.signUpText}>Sign Up</Text>
 				</TouchableOpacity>
@@ -156,64 +181,62 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
-		padding: 20,
+		padding: '5%',
 	},
 	title: {
-		fontSize: 28,
-		fontWeight: 'bold',
-		marginBottom: 20,
-		color: '#001C71',
+		fontSize: 35,
+		fontWeight: '600',
+		color: Colors.blue.dark,
+		marginBottom: '6%',
 	},
 	subtitle: {
 		fontSize: 16,
-		color: '#4169E1',
-		marginBottom: 20,
+		fontWeight: '500',
+		color: Colors.blue.primary,
+		marginBottom: '22%',
+	},
+	loginText: {
+		width: '100%',
+		fontSize: 28,
+		fontWeight: '600',
+		textAlign: 'left',
+		color: Colors.blue.dark,
+		marginBottom: '5%',
 	},
 	input: {
 		width: '100%',
-		borderColor: '#0077FF',
-		borderWidth: 1,
+		fontSize: 20,
+		fontWeight: '600',
+		borderColor: Colors.blue.primary,
+		padding: '4%',
+		marginBottom: '4%',
+		borderWidth: 4,
 		borderRadius: 10,
-		padding: 10,
-		marginBottom: 15,
 	},
 	inputError: {
-		borderColor: 'red',
+		borderColor: '#ff0000',
 	},
-	passwordContainer: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		width: '100%',
-		borderColor: '#0077FF',
-		borderWidth: 1,
-		borderRadius: 10,
-		marginBottom: 15,
-		paddingRight: 10,
-	},
-	inputPassword: {
-		flex: 1,
-		padding: 10,
-	},
-	LogInButton: {
-		backgroundColor: '#0077FF',
-		width: '100%',
-		padding: 15,
-		borderRadius: 10,
+	forgotPasswordText: {
+		fontSize: 20,
+		fontWeight: '600',
+		color: Colors.blue.primary,
+		paddingBottom: '5%',
 	},
 	loginContainer: {
 		flexDirection: 'row',
-		marginTop: 20,
+		marginTop: '5%',
 	},
-	forgotPasswordText: {
-		color: '#0077FF',
+	noAccount: {
+		fontSize: 20,
 	},
 	signUpContainer: {
 		flexDirection: 'row',
-		marginTop: 20,
+		paddingTop: '10%',
 	},
 	signUpText: {
-		color: '#0077FF',
-		fontWeight: 'bold',
+		fontSize: 20,
+		fontWeight: '600',
+		color: Colors.blue.primary,
 	},
 });
 

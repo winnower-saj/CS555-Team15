@@ -16,6 +16,9 @@ import SignUp from './signup';
 import Home from './home';
 import Profile from './profile';
 import Notifications from './notifications';
+import DeleteAccount from './delete-account';
+import PrivacyPolicy from './privacypolicy';
+import PasswordManager from './passwordmanager';
 import Settings from './settings';
 import PasswordManager from './passwordmanager';
 import PrivacyPolicy from './privacypolicy';
@@ -179,6 +182,12 @@ const RootLayoutContent = () => {
 				initialParams={{ user }}
 			/>
 			<Drawer.Screen
+				name='privacypolicy'
+				component={PrivacyPolicy}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
 				name='settings'
 				component={Settings}
 				options={{ headerShown: false }}
@@ -187,6 +196,12 @@ const RootLayoutContent = () => {
 			<Drawer.Screen
 				name='passwordmanager'
 				component={PasswordManager}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='delete-account'
+				component={DeleteAccount}
 				options={{ headerShown: false }}
 				initialParams={{ user }}
 			/>

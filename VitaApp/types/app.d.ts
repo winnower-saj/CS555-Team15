@@ -12,7 +12,7 @@ interface AuthContextType {
 		accessToken: string,
 		refreshToken: string,
 		firstName: string,
-		lastName: sttring,
+		lastName: string,
 		phoneNumber: string
 	) => Promise<void>;
 	logout: () => Promise<void>;
