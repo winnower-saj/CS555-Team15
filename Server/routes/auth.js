@@ -9,6 +9,7 @@ import {
 	findRefreshToken,
 	deleteRefreshToken,
 	updateUserPassword,
+	updateUserProfile,
 } from '../helpers/dbHelpers.js';
 const router = express.Router();
 import dotenv from 'dotenv';
@@ -159,24 +160,23 @@ router.delete('/delete', async (req, res) => {
 	}
 });
 
-// Delete user route
-router.delete('/delete', async (req, res) => {
-	const { userId, token } = req.body;
+// Update user route
+router.patch('/update-profile', async (req, res) => {
+	const { userId, firstName, lastName, phoneNumber } = req.body;
 
 	try {
-		const user = await findUserByPhoneNumber(userId);
+		const user = await findUserById(userId);
 
 		if (!user) {
 			return res.status(404).json({ message: 'User not found' });
 		}
 
-		await deleteUser(userId);
-		await deleteRefreshToken(token);
+		const updatedUser = await updateUserProfile(userId, firstName, lastName, phoneNumber);
 
-		res.status(204).send();
+		res.status(200).json(updatedUser);
 	} catch (error) {
-		console.error('Error during user deletion', error.message);
-		res.status(500).json({ message: 'Server error during user deletion' });
+		console.error('Error during user profile update', error.message);
+		return res.status(500).json({ message: 'Server error during user profile update' });
 	}
 });
 

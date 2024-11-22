@@ -21,6 +21,7 @@ import PrivacyPolicy from './privacypolicy';
 import PasswordManager from './passwordmanager';
 import Settings from './settings';
 import SoundAndVibration from './soundandvibration';
+import MyProfile from './my-profile';
 
 const Drawer = createDrawerNavigator();
 const AuthStack = createStackNavigator();
@@ -206,6 +207,12 @@ const RootLayoutContent = () => {
 			<Drawer.Screen
 				name='soundandvibration'
 				component={SoundAndVibration}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='my-profile'
+				component={MyProfile}
 				options={{ headerShown: false }}
 				initialParams={{ user }}
 			/>

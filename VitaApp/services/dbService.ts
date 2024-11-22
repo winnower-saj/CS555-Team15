@@ -66,8 +66,26 @@ const deleteUser = async (userId: string, refreshToken: string) => {
 	}
 };
 
+// Update users information
+const updateUserProfile = async (userData: {
+	userId: string,
+	firstName: string,
+	lastName: string,
+	phoneNumber: string
+}) => {
+	try {
+		const response = await axios.patch(`${Config.API_URL}/auth/update-profile`,
+			userData
+		);
+
+		return response;
+	} catch (error) {
+		throw error;
+	}
+};
+
 //Compare and update password
-const updatePassword = async (userId, currentPassword, newPassword) => {
+const updatePassword = async (userId: string, currentPassword: string, newPassword: string) => {
 	try {
 		const response = await axios.patch(
 			`${Config.API_URL}/auth/update-password`,
@@ -85,7 +103,7 @@ const updatePassword = async (userId, currentPassword, newPassword) => {
 		);
 		throw new Error(
 			error.response?.data.message ||
-				'Password update failed. Please try again.'
+			'Password update failed. Please try again.'
 		);
 	}
 };
@@ -117,5 +135,6 @@ export {
 	logoutUser,
 	deleteUser,
 	refreshAccessToken,
+	updateUserProfile,
 	updatePassword,
 };

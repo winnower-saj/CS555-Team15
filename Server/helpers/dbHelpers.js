@@ -69,6 +69,39 @@ const deleteRefreshToken = async (token) => {
 	}
 };
 
+// Update user profile
+const updateUserProfile = async (
+	userId,
+	firstName,
+	lastName,
+	phoneNumber
+) => {
+	try {
+		const updatedInfo = {};
+
+		if (firstName) {
+			updatedInfo.firstName = firstName;
+		}
+
+		if (lastName) {
+			updatedInfo.lastName = lastName;
+		}
+
+		if (phoneNumber) {
+			updatedInfo.phoneNumber = phoneNumber;
+		}
+
+		const updatedUser = await User.findByIdAndUpdate(userId, updatedInfo, {
+			new: true
+		});
+
+		return updatedUser;
+
+	} catch (error) {
+		throw new Error('Error updating user profile: ' + error.message);
+	}
+};
+
 //To Update Password by UserID
 const updateUserPassword = async (
 	isPasswordCorrect,
@@ -97,5 +130,6 @@ export {
 	storeRefreshToken,
 	findRefreshToken,
 	deleteRefreshToken,
+	updateUserProfile,
 	updateUserPassword,
 };
