@@ -2,10 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
-import { useRouter } from 'expo-router';
 
 const PageHeading = ({ title, handlePress }) => {
-    const router = useRouter();
     return (
         <View style={styles.header}>
             <TouchableOpacity

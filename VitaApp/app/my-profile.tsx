@@ -97,6 +97,8 @@ const MyProfile = ({ navigation, route }) => {
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
+        backgroundColor: '#ffffff',
         paddingVertical: '5%',
     },
     profileImage: {
