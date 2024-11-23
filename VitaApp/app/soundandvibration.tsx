@@ -16,8 +16,8 @@ const SoundAndVibration = ({ navigation }) => {
 					<Text style={styles.label}>Sound</Text>
 					<ToggleButton
 						isOn={isSoundOn}
-						labelOn="Sound ON"
-						labelOff="Sound OFF"
+						labelOn='Sound ON'
+						labelOff='Sound OFF'
 						onToggle={() => setIsSoundOn(!isSoundOn)}
 					/>
 				</View>
@@ -26,8 +26,8 @@ const SoundAndVibration = ({ navigation }) => {
 					<Text style={styles.label}>Vibrate</Text>
 					<ToggleButton
 						isOn={isVibrationOn}
-						labelOn="Vibration ON"
-						labelOff="Vibration OFF"
+						labelOn='Vibration ON'
+						labelOff='Vibration OFF'
 						onToggle={() => setIsVibrationOn(!isVibrationOn)}
 					/>
 				</View>

@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: '5%',
-        paddingVertical: "8%",
+        paddingVertical: '8%',
     },
     headerTitle: {
         flex: 1,

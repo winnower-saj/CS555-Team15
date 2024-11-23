@@ -213,7 +213,7 @@ const Signup = () => {
 				placeholder='First Name'
 				value={firstName}
 				onChangeText={setFirstName}
-				underlineColorAndroid="transparent"
+				underlineColorAndroid='transparent'
 			/>
 
 			<TextInput
@@ -221,7 +221,7 @@ const Signup = () => {
 				placeholder='Last Name'
 				value={lastName}
 				onChangeText={setLastName}
-				underlineColorAndroid="transparent"
+				underlineColorAndroid='transparent'
 			/>
 
 			<TextInput
@@ -230,7 +230,7 @@ const Signup = () => {
 				value={phoneNumber}
 				keyboardType='phone-pad'
 				onChangeText={setPhoneNumber}
-				underlineColorAndroid="transparent"
+				underlineColorAndroid='transparent'
 			/>
 
 			<PasswordInput
