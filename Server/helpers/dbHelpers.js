@@ -1,5 +1,8 @@
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
+import Medication from '../models/Medication.js';
+import Appointment from '../models/Medication.js';
+import Conversation from '../models/Conversation.js';
 import RefreshToken from '../models/RefreshToken.js';
 
 // Find user by phone number
@@ -122,6 +125,39 @@ const updateUserPassword = async (
 	}
 };
 
+// Add new medication
+const addMedication = async (userId, date, time, about) => {
+	try {
+		const medication = new Medication({ userId, date, time, about });
+		await medication.save();
+		return medication;
+	} catch (error) {
+		throw new Error('Error adding medication: ' + error.message);
+	}
+};
+
+// Add appointment
+const addAppointment = async (userId, date, time, about) => {
+	try {
+		const appointment = new Appointment({ userId, date, time, about });
+		await appointment.save();
+		return appointment;
+	} catch (error) {
+		throw new Error('Error adding appointment: ' + error.message);
+	}
+};
+
+// Add conversation
+const addConversation = async (userId, userText, assistantText, emotion) => {
+	try {
+		const conversation = new Conversation({ userId, userText, assistantText, emotion });
+		await conversation.save();
+		return conversation;
+	} catch (error) {
+		throw new Error('Error adding conversation: ' + error.message);
+	}
+};
+
 export {
 	findUserByPhoneNumber,
 	createUser,
@@ -132,4 +168,7 @@ export {
 	deleteRefreshToken,
 	updateUserProfile,
 	updateUserPassword,
+	addMedication,
+	addAppointment,
+	addConversation
 };
