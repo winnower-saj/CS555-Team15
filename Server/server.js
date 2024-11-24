@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import app from './app.js';
-import connectMongoDB from './config/mongoDB.js';
+import { connectUserMongoDB, connectVoiceMongoDB } from './config/mongoDB.js';
 
 dotenv.config();
 
@@ -9,8 +9,11 @@ const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
 	try {
-		// Connect to MongoDB
-		await connectMongoDB();
+		// Connect to User MongoDB
+		await connectUserMongoDB();
+
+		// Connect to Voice MongoDB
+		await connectVoiceMongoDB();
 
 		// Start the server
 		app.listen(PORT, HOST, () => {
