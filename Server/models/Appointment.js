@@ -1,25 +1,29 @@
 import mongoose from 'mongoose';
 
 const appointmentSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-    },
-    date: {
-        type: Date,
-        required: true,
-    },
-    time: {
-        type: String,
-        required: true,
-    },
-    about: {
-        type: String,
-        required: true,
-    },
+	userId: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User',
+		required: true,
+	},
+	title: {
+		type: String,
+		required: true,
+	},
+	details: {
+		type: String,
+		required: true,
+	},
+	date: {
+		type: Date,
+		required: true,
+	},
+	time: {
+		type: String,
+		required: true,
+	},
 },
-    { timestamps: true }
+	{ timestamps: true }
 );
 
-export default mongoose.model('Appointment', appointmentSchema);
+export const AppointmentModel = (healthDatabase) => healthDatabase.model('Appointment', appointmentSchema);
