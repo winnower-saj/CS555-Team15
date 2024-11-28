@@ -3,33 +3,35 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Connection to User database
-const connectUserMongoDB = async () => {
-	const MONGO_URI_USER = process.env.MONGO_URI_USER;
+const MONGO_URI_VITA_VOICE_USER = process.env.MONGO_URI_VITA_VOICE_USER;
+const MONGO_URI_VITA_VOICE_HEALTH = process.env.MONGO_URI_VITA_VOICE_HEALTH;
 
-	try {
-		await mongoose.connect(MONGO_URI_USER);
+const connectMongoDB = () => {
+	// Connection to User Data database
+	const userDatabase = mongoose.createConnection(MONGO_URI_VITA_VOICE_USER);
+
+	userDatabase.on('connected', () => {
+		console.log('====================================');
 		console.log('Connected to User MongoDB');
-	} catch (error) {
+	});
+
+	userDatabase.on('error', (error) => {
 		console.error('Error connecting to User MongoDB:', error.message);
-		throw new Error('User MongoDB connection failed');
-	}
+	});
+
+	// Connection to Health Data database
+	const healthDatabase = mongoose.createConnection(MONGO_URI_VITA_VOICE_HEALTH);
+
+	healthDatabase.on('connected', () => {
+		console.log('Connected to Health MongoDB');
+		console.log('====================================');
+	});
+
+	healthDatabase.on('error', (error) => {
+		console.error('Error connecting to Health MongoDB:', error.message);
+	});
+
+	return { userDatabase, healthDatabase };
 };
 
-// Connection to Voice Data database
-const connectVoiceMongoDB = async () => {
-	const MONGO_URI_VOICE = process.env.MONGO_URI_VOICE;
-
-	try {
-		await mongoose.connect(MONGO_URI_VOICE, {
-			ssl: true,
-			sslValidate: true,
-		});
-		console.log('Connected to Voice MongoDB');
-	} catch (error) {
-		console.error('Error connecting to Voice MongoDB:', error.message);
-		throw new Error('Voice MongoDB connection failed');
-	}
-};
-
-export { connectUserMongoDB, connectVoiceMongoDB };
+export default connectMongoDB;

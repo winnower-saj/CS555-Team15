@@ -9,14 +9,14 @@ const userSchema = new mongoose.Schema(
 			required: [true, 'First name is required'],
 			trim: true,
 			minLength: [2, 'First name must be at least 2 characters long'],
-			mathc: [/^[a-zA-Z]+$/, 'First name can only contain letters'],
+			match: [/^[a-zA-Z]+$/, 'First name can only contain letters'],
 		},
 		lastName: {
 			type: String,
 			required: [true, 'Last name is required'],
 			trim: true,
 			minLength: [2, 'Last name must be at least 2 characters long'],
-			mathc: [/^[a-zA-Z]+$/, 'Last name can only contain letters'],
+			match: [/^[a-zA-Z]+$/, 'Last name can only contain letters'],
 		},
 		phoneNumber: {
 			type: String,
@@ -33,8 +33,8 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			required: [true, 'Password is required'],
 			minLength: [8, 'Password must be at least 8 characters long'],
-			mathc: [
-				/^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/,
+			match: [
+				/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/,
 				'Password must be at least 8 characters long ' +
 				'and contain a mix of uppercase, lowercase, numbers, and special characters'
 			],
@@ -60,4 +60,4 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
 	return bcrypt.compare(enteredPassword, this.password);
 };
 
-export default mongoose.model('User', userSchema);
+export const UserModel = (userDatabase) => userDatabase.model('User', userSchema);
