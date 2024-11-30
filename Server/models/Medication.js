@@ -14,10 +14,6 @@ const medicationSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	date: {
-		type: Date,
-		required: true,
-	},
 	time: {
 		type: String,
 		required: true,
