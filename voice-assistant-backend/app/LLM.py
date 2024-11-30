@@ -15,6 +15,7 @@ from langchain.prompts import (
 from langchain.chains import LLMChain
 from langchain.schema import HumanMessage, AIMessage
 from langchain_groq import ChatGroq
+from app.config.db_connection import mongo_instance
 
 load_dotenv()
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
@@ -36,9 +37,7 @@ class Conversation(BaseModel):
 
 class VoiceAssistantLLM:
     def __init__(self):
-        self.client = AsyncIOMotorClient(os.getenv("MONGODB_URI"))
-        self.db = self.client["VitaVoiceHealth"] # MongoDB database
-        self.conversations = self.db["conversationsTest2"]  # MongoDB collection
+        self.conversations = mongo_instance.conversations
 
         self.llm = ChatGroq(temperature=0, model_name="mixtral-8x7b-32768", groq_api_key=GROQ_API_KEY)
 

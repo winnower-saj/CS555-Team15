@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Alert,
@@ -15,6 +15,7 @@ global.Buffer = Buffer;
 import {
   clearConversation,
   fetchTranscripts,
+  fetchReminders
 } from '../services/assistantService';
 import { getUserSession } from '../services/authService';
 
@@ -26,7 +27,16 @@ export default function AudioMessageComponent() {
   const [recording, setRecording] = useState(null);
   const [transcription, setTranscription] = useState('');
   const [responseText, setResponseText] = useState('');
+  const [lastReminderTimestamp, setLastReminderTimestamp] = useState(null);
   const recordingRef = useRef(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      checkForReminders();
+    }, 60000); // Check every minute
+
+    return () => clearInterval(interval);
+  }, [lastReminderTimestamp]);
 
   const startRecording = async () => {
     console.log('Requesting microphone permissions...');
@@ -184,6 +194,33 @@ export default function AudioMessageComponent() {
       console.error('Error with TTS:', error);
     }
   };
+
+  const checkForReminders = async () => {
+    try {
+      const userId = await fetchUserId();
+      if (!userId) {
+        console.error('Cannot fetch reminders without user ID');
+        return;
+      }
+  
+      console.log('Fetching reminders for user:', userId);
+      const response = await fetchReminders(userId);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Fetched reminders:', data.reminders);
+  
+        // Play only reminders returned by the backend
+        for (const reminder of data.reminders) {
+          await playTTS(reminder.assistantText);
+        }
+      } else {
+        console.error('Failed to fetch reminders. Server responded with:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching reminders:', error);
+    }
+  };
+  
 
   return (
     <View style={styles.container}>

@@ -45,5 +45,15 @@ const fetchTranscripts = async (userId, transcribedText) => {
 	}
 };
 
+export const fetchReminders = async (userId) => {
+	try {
+	  const response = await fetch(`${Config.API_URL}:${Config.PYTHON_SERVER_PORT}/get-reminders/${userId}`);
+	  return response;
+	} catch (error) {
+	  console.error('Error fetching reminders:', error);
+	  throw error;
+	}
+  };
+
 
 export { clearConversation, fetchTranscripts };
