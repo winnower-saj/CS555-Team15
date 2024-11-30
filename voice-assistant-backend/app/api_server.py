@@ -7,7 +7,7 @@ from app.reminders.medication_reminders import MedicationReminder
 from app.reminders.appointment_reminders import AppointmentReminder
 from app.config.db_connection import mongo_instance
 from bson import ObjectId
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = FastAPI()
 llm = VoiceAssistantLLM()
@@ -61,19 +61,33 @@ async def root():
 async def get_reminders(userId: str):
     try:
         now = datetime.now()
-        current_time_str = now.strftime("%I:%M %p")  # 12-hour format
-        conversations = mongo_instance.get_collection("conversationsTest2") # conversation collection
-        reminders = await conversations.find_one({"userId": ObjectId(userId)})
+        today = now.date()
+        current_time_str = now.strftime("%I:%M %p")  # 12-hour formatting
+        tomorrow = today + timedelta(days=1)
 
-        if reminders and "messages" in reminders:
-            due_reminders = [
-                message
-                for message in reminders["messages"]
-                if message["assistantText"].startswith("Reminder")
-                and current_time_str in message["assistantText"]
-            ]
-            return {"reminders": due_reminders}
-        else:
-            return {"reminders": []}
+        appointments = mongo_instance.get_collection("appointments")
+        medications = mongo_instance.get_collection("medications")
+
+        appointment_reminders = []
+        async for appointment in appointments.find({"userId": ObjectId(userId)}):
+            appointment_date = appointment["date"].date()
+            if appointment_date == tomorrow and appointment["time"] == current_time_str:
+                reminder_text = (
+                    f"Reminder for your appointment: {appointment['title']} - {appointment['details']} "
+                    f"on {appointment_date.strftime('%Y-%m-%d')} at {appointment['time']}."
+                )
+                appointment_reminders.append({"assistantText": reminder_text, "userText": "", "emotion": "neutral"})
+
+        medication_reminders = []
+        async for medication in medications.find({"userId": ObjectId(userId)}):
+            if medication["time"] == current_time_str:
+                reminder_text = (
+                    f"Reminder to take your medication: {medication['name']} - {medication['details']} at {medication['time']}."
+                )
+                medication_reminders.append({"assistantText": reminder_text, "userText": "", "emotion": "neutral"})
+
+        return {"reminders": appointment_reminders + medication_reminders}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+

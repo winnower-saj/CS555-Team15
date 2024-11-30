@@ -209,7 +209,6 @@ export default function AudioMessageComponent() {
         const data = await response.json();
         console.log('Fetched reminders:', data.reminders);
   
-        // Play only reminders returned by the backend
         for (const reminder of data.reminders) {
           await playTTS(reminder.assistantText);
         }
@@ -220,7 +219,6 @@ export default function AudioMessageComponent() {
       console.error('Error fetching reminders:', error);
     }
   };
-  
 
   return (
     <View style={styles.container}>
