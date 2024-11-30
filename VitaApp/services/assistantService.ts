@@ -27,7 +27,7 @@ const clearConversation = async (formData) => {
   };
   
 
-const fetchTranscripts = async (transcribedText) => {
+const fetchTranscripts = async (userId, transcribedText) => {
 	try {
 		const response = await fetch(
 			`${Config.API_URL}:${Config.PYTHON_SERVER_PORT}/process`,
@@ -36,7 +36,7 @@ const fetchTranscripts = async (transcribedText) => {
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ text: transcribedText }),
+				body: JSON.stringify({ userId: userId, text: transcribedText}),
 			}
 		);
 		return response;
@@ -44,5 +44,6 @@ const fetchTranscripts = async (transcribedText) => {
 		console.error('Error clearing user session:', e);
 	}
 };
+
 
 export { clearConversation, fetchTranscripts };

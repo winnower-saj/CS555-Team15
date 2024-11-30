@@ -16,6 +16,7 @@ import {
   clearConversation,
   fetchTranscripts,
 } from '../services/assistantService';
+import { getUserSession } from '../services/authService';
 
 const ELEVEN_LABS_API_KEY =
   'sk_540dd348ff3604c77c8dcb85d7112437b193e80c7abaa55e';
@@ -98,10 +99,28 @@ export default function AudioMessageComponent() {
     }
   };
 
+  const fetchUserId = async () => {
+    try {
+      const session = await getUserSession();
+      if (session && session.userId) {
+        console.log('User ID:', session.userId);
+        return session.userId;
+      } else {
+        console.error('No user session found');
+        return null;
+      }
+    } catch (e) {
+      console.error('Error fetching user session:', e);
+      return null;
+    }
+  };
+
   const processTranscription = async (transcribedText) => {
     console.log('Sending transcription to EC2 backend...');
     try {
-      const response = await fetchTranscripts(transcribedText);
+      const userId = await fetchUserId();
+      console.log('Current User ID:', userId);
+      const response = await fetchTranscripts(userId, transcribedText);
       if (response.ok) {
         const data = await response.json();
         console.log(
