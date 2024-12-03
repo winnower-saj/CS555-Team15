@@ -1,6 +1,7 @@
-from fastapi import FastAPI, HTTPException, Depends
-from fastapi.security.api_key import APIKeyHeader, APIKey
-import os
+import threading
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,6 +10,7 @@ from app.appointment_handler import AppointmentHandler
 from app.TextToSpeech import text_to_speech_stream
 from app.SpeechToText import speech_recognition, pause_microphone, resume_microphone
 from app.LLM import VoiceAssistantLLM
+
 from dotenv import load_dotenv
 from pydantic import BaseModel
 import logging
@@ -20,6 +22,26 @@ load_dotenv()
 
 app = FastAPI()
 
+from app.reminders.medication_reminders import MedicationReminder
+from app.reminders.appointment_reminders import AppointmentReminder
+from app.config.db_connection import mongo_instance
+from bson import ObjectId
+from datetime import datetime
+from app.daily_question_schedular import ReminiscentQuestionScheduler
+
+app = FastAPI()
+llm = VoiceAssistantLLM()
+medication_reminder = MedicationReminder()
+appointment_reminder = AppointmentReminder()
+reminiscent_scheduler = ReminiscentQuestionScheduler(llm)
+def start_scheduler():
+    # Background thread to run the scheduler
+    reminiscent_scheduler.start_scheduler()
+# Start scheduler in a background thread
+scheduler_thread = threading.Thread(target=start_scheduler, daemon=True)
+scheduler_thread.start()
+
+
 # Configure CORS Middleware
 app.add_middleware(
     CORSMiddleware,
@@ -29,9 +51,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 API_KEY = os.getenv("API_KEY")
 API_KEY_NAME = os.getenv("API_KEY_NAME", "api_key")
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
+
+# Create global scheduler instance
+reminiscent_scheduler = ReminiscentQuestionScheduler(llm)
+def start_scheduler():
+    # Background thread to run the scheduler
+    reminiscent_scheduler.start_scheduler()
+# Start scheduler in a background thread
+scheduler_thread = threading.Thread(target=start_scheduler, daemon=True)
+scheduler_thread.start()
+
+
+
+class TranscriptionRequest(BaseModel):
+    userId: str
+    text: str
+
 
 async def get_api_key(api_key_header_value: str = Depends(api_key_header)):
     if api_key_header_value == API_KEY:
@@ -134,7 +173,6 @@ async def control_assistant(request: ControlRequest, api_key: APIKey = Depends(g
         except Exception as e:
             logger.error(f"Failed to stop assistant: {e}")
             raise HTTPException(status_code=500, detail=str(e))
-
     else:
         raise HTTPException(status_code=400, detail="Invalid action.")
 
@@ -145,3 +183,38 @@ async def get_status(api_key: APIKey = Depends(get_api_key)):
 
 if __name__ == "__main__":
     uvicorn.run("api_server:app", host="0.0.0.0", port=8000, reload=True)
+        if reminders and "messages" in reminders:
+            due_reminders = [
+                message
+                for message in reminders["messages"]
+                if message["assistantText"].startswith("Reminder")
+                and current_time_str in message["assistantText"]
+            ]
+            return {"reminders": due_reminders}
+        else:
+            return {"reminders": []}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
+@app.get("/reminiscent-question")
+async def get_reminiscent_question():
+    # Endpoint to manually trigger or retrieve the reminiscent question
+    result = reminiscent_scheduler.ask_reminiscent_question()
+    if result:
+        return result
+    else:
+        raise HTTPException(status_code=500, detail="Failed to generate reminiscent question")
+
+@app.get("/reminiscent-questions")
+async def list_reminiscent_questions():
+    # Endpoint to list available reminiscent questions
+    return {"questions": reminiscent_scheduler.reminiscent_questions}
+
+@app.post("/reminiscent-questions")
+async def add_reminiscent_question(question: TranscriptionRequest):
+    # Endpoint to add a new reminiscent question
+    if question.text and question.text not in reminiscent_scheduler.reminiscent_questions:
+        reminiscent_scheduler.reminiscent_questions.append(question.text)
+        return {"message": "Question added successfully", "questions": reminiscent_scheduler.reminiscent_questions}
+    else:
+        raise 
