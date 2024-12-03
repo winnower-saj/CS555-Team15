@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Modal, StyleSheet } from 'react-native';
 import { Button } from 'react-native-elements';
+import { Colors } from '../../constants/Colors';
 
 const AccountDeletedModal = ({ showAccountDeletedModal, handleClose }) => {
     return (
@@ -29,51 +30,53 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'flex-end',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 119, 182, 0.3)'
+        backgroundColor: 'rgba(0, 119, 182, 0.3)',
     },
     modalContent: {
-        justifyContent: 'space-evenly',
         width: '100%',
         height: '40%',
-        padding: 20,
-        backgroundColor: 'white',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        backgroundColor: '#ffffff',
         borderTopLeftRadius: 50,
         borderTopRightRadius: 50,
-        alignItems: 'center'
+        padding: '5%',
     },
     modalSuccess: {
-        backgroundColor: '#00FF00',
-        borderRadius: 50,
-        color: '#000000',
         width: 120,
-        paddingTop: 5,
-        paddingBottom: 5,
         textAlign: 'center',
-        fontWeight: '600'
+        fontSize: 20,
+        fontWeight: '600',
+        color: '#000000',
+        backgroundColor: '#00ff00',
+        borderRadius: 50,
+        paddingVertical: '1%',
     },
     modalTitle: {
         fontSize: 24,
         fontWeight: '600',
-        color: '#0077B6'
+        color: Colors.blue.primary,
     },
     modalConfirmationText: {
+        textAlign: 'center',
         fontSize: 16,
         fontWeight: '600',
-        textAlign: 'center'
+        lineHeight: 25,
     },
     buttonContainer: {
-        width: '100%'
+        width: '100%',
     },
     button: {
-        backgroundColor: '#0077B6',
-        width: '100%',
-        height: 60,
-        borderRadius: 50
+        width: '80%',
+        alignSelf: 'center',
+        backgroundColor: Colors.blue.primary,
+        borderRadius: 50,
+        paddingVertical: '3%',
     },
     buttonText: {
+        fontSize: 24,
         fontWeight: '600',
-        fontSize: 20
-    }
+    },
 });
 
 export default AccountDeletedModal;

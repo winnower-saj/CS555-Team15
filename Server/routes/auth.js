@@ -1,7 +1,6 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const {
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import {
 	createUser,
 	deleteUserById,
 	findUserById,
@@ -9,9 +8,11 @@ const {
 	storeRefreshToken,
 	findRefreshToken,
 	deleteRefreshToken,
-} = require('../helpers/dbHelpers.js');
+	updateUserPassword,
+	updateUserProfile,
+} from '../helpers/dbHelpers.js';
 const router = express.Router();
-const dotenv = require('dotenv');
+import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -25,15 +26,16 @@ router.post('/signup', async (req, res) => {
 	try {
 		const existingUser = await findUserByPhoneNumber(phoneNumber);
 		if (existingUser) {
-			return res.status(400).json({ message: 'User with this phone number already exists' });
+			return res.status(400).json({
+				message: 'User with this phone number already exists',
+			});
 		}
 
-		const hashedPassword = await bcrypt.hash(password, 12);
 		const newUser = await createUser({
 			firstName,
 			lastName,
 			phoneNumber,
-			password: hashedPassword,
+			password,
 		});
 
 		const accessToken = generateAccessToken(newUser._id);
@@ -63,7 +65,7 @@ router.post('/login', async (req, res) => {
 			return res.status(400).json({ message: 'Invalid credentials' });
 		}
 
-		const isPasswordCorrect = user.comparePassword(password);
+		const isPasswordCorrect = await user.comparePassword(password);
 		if (!isPasswordCorrect) {
 			return res.status(400).json({ message: 'Invalid credentials' });
 		}
@@ -95,12 +97,16 @@ router.post('/token', async (req, res) => {
 	try {
 		const storedToken = await findRefreshToken(token);
 		if (!storedToken || new Date() > storedToken.expiryDate) {
-			return res.status(403).json({ message: 'Invalid or expired refresh token' });
+			return res
+				.status(403)
+				.json({ message: 'Invalid or expired refresh token' });
 		}
 
 		jwt.verify(token, REFRESH_TOKEN_SECRET, (err, decoded) => {
 			if (err) {
-				return res.status(403).json({ message: 'Invalid refresh token' });
+				return res
+					.status(403)
+					.json({ message: 'Invalid refresh token' });
 			}
 
 			const newAccessToken = generateAccessToken(decoded.userId);
@@ -108,7 +114,9 @@ router.post('/token', async (req, res) => {
 		});
 	} catch (error) {
 		console.error('Error during token refresh:', error.message);
-		return res.status(500).json({ message: 'Server error during token refresh' });
+		return res
+			.status(500)
+			.json({ message: 'Server error during token refresh' });
 	}
 });
 
@@ -118,7 +126,9 @@ router.post('/logout', async (req, res) => {
 
 	try {
 		await deleteRefreshToken(token);
-		return res.status(200).json({ message: 'User successfully logged out.' });
+		return res
+			.status(200)
+			.json({ message: 'User successfully logged out.' });
 	} catch (error) {
 		console.error('Error during logout:', error.message);
 		return res.status(500).json({ message: 'Server error during logout' });
@@ -139,31 +149,56 @@ router.delete('/delete', async (req, res) => {
 		await deleteUserById(userId);
 		await deleteRefreshToken(token);
 
-		return res.status(200).json({ message: 'User account deleted successfully.' });
+		return res
+			.status(200)
+			.json({ message: 'User account deleted successfully.' });
 	} catch (error) {
 		console.error('Error deleting user account', error.message);
-		return res.status(500).json({ message: 'Server error during deleting user account' });
+		return res
+			.status(500)
+			.json({ message: 'Server error during deleting user account' });
 	}
 });
 
-// Delete user route
-router.delete('/delete', async (req, res) => {
-	const { userId, token } = req.body;
+// Update user route
+router.patch('/update-profile', async (req, res) => {
+	const { userId, firstName, lastName, phoneNumber } = req.body;
 
 	try {
-		const user = await findUserByPhoneNumber(userId);
+		const user = await findUserById(userId);
 
 		if (!user) {
 			return res.status(404).json({ message: 'User not found' });
 		}
 
-		await deleteUser(userId);
-		await deleteRefreshToken(token);
+		const updatedUser = await updateUserProfile(userId, firstName, lastName, phoneNumber);
 
-		res.status(204).send();
+		res.status(200).json(updatedUser);
 	} catch (error) {
-		console.error('Error during user deletion', error.message);
-		res.status(500).json({ message: 'Server error during user deletion' });
+		console.error('Error during user profile update', error.message);
+		return res.status(500).json({ message: 'Server error during user profile update' });
+	}
+});
+
+// Password update route
+router.patch('/update-password', async (req, res) => {
+	const { userId, currentPassword, newPassword } = req.body;
+	try {
+		const user = await findUserById(userId);
+		const isPasswordCorrect = user.comparePassword(currentPassword);
+		if (isPasswordCorrect) {
+			const result = await updateUserPassword(
+				isPasswordCorrect,
+				user.phoneNumber,
+				newPassword
+			);
+			return res.status(200).json(result);
+		} else throw new Error('Password is incorrect');
+	} catch (error) {
+		console.error('Error during password update:', error.message);
+		return res
+			.status(500)
+			.json({ message: 'Server error during password update' });
 	}
 });
 
@@ -186,4 +221,4 @@ async function createRefreshToken(userId) {
 	return refreshToken;
 }
 
-module.exports = router;
+export default router;

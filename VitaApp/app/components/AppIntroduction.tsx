@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import {
 	SafeAreaProvider,
 	SafeAreaView as SafeAreaViewRN,
 } from 'react-native-safe-area-context';
+import SmallButton from './SmallButton';
+import { Colors } from '../../constants/Colors';
 
 const stepsData = [
 	{
@@ -14,7 +16,7 @@ const stepsData = [
 	{
 		icon: require('../../assets/images/lotus.png'),
 		title: 'Comfort',
-		desc: 'Pease of mind for seniors and families.',
+		desc: 'Peace of mind for seniors and families.',
 	},
 	{
 		icon: require('../../assets/images/assistant.png'),
@@ -59,22 +61,17 @@ const AppIntroduction = ({ onSkip }) => {
 						{currentStepData.desc}
 					</Text>
 					<View style={[styles.buttonContainer]}>
-						<TouchableOpacity
-							style={[styles.button, styles.secondaryButton]}
-							onPress={isFirstStep ? onSkip : handlePreviousPress}
-						>
-							<Text style={styles.buttonText}>
-								{isFirstStep ? 'Skip' : 'Back'}
-							</Text>
-						</TouchableOpacity>
-						<TouchableOpacity
-							style={[styles.button, styles.primaryButton]}
-							onPress={isLastStep ? onSkip : handleNextPress}
-						>
-							<Text style={styles.buttonText}>
-								{isLastStep ? 'Finsh' : 'Next'}
-							</Text>
-						</TouchableOpacity>
+						<SmallButton
+							btnTitle={isFirstStep ? 'Skip' : 'Back'}
+							btnBackgroundColor='#ffffff'
+							handlePress={isFirstStep ? onSkip : handlePreviousPress} >
+						</SmallButton>
+						<SmallButton
+							btnTitle={isLastStep ? 'Finish' : 'Next'}
+							btnBackgroundColor='#0077B6'
+							btnTextColor='#ffffff'
+							handlePress={isLastStep ? onSkip : handleNextPress} >
+						</SmallButton>
 					</View>
 					<View style={styles.stepIndicatorContainer}>
 						{stepsData.map((data, index) => (
@@ -105,83 +102,68 @@ const AppIntroduction = ({ onSkip }) => {
 const styles = StyleSheet.create({
 	safeArea: {
 		display: 'flex',
-		alignItems: 'center',
-		justifyContent: 'center',
 		flex: 1,
-		backgroundColor: '#fff',
+		alignItems: 'center',
+		justifyContent: 'space-evenly',
+		backgroundColor: '#ffffff',
 	},
 	stepContainer: {
 		width: '100%',
+		height: '100%',
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
 	contentPartOne: {
+		flex: 1,
 		height: '50%',
-		paddingTop: '30%',
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
 	icon: {
 		width: 100,
 		height: 100,
-		marginBottom: 24,
+		marginBottom: '2%',
 	},
 	title: {
-		color: '#0A0A52',
-		fontSize: 28,
-		fontWeight: 'bold',
+		fontSize: 35,
+		fontWeight: '600',
+		color: '#000000',
 	},
 	contentPartTwo: {
 		width: '100%',
 		height: '50%',
-		paddingTop: '20%',
-		alignItems: 'center',
-		backgroundColor: '#0A0A52',
+		paddingTop: '8%',
+		paddingHorizontal: '5%',
+		backgroundColor: Colors.blue.dark,
 	},
 	description: {
-		color: '#fff',
-		fontSize: 16,
-		textAlign: 'center',
-		marginBottom: 56,
+		fontSize: 30,
+		color: '#ffffff',
+		lineHeight: 45,
+		textAlign: 'left',
+		marginBottom: '30%',
 	},
 	buttonContainer: {
 		width: '100%',
 		flexDirection: 'row',
 		justifyContent: 'space-around',
-	},
-	button: {
-		borderRadius: 16,
-		paddingVertical: 16,
-		paddingHorizontal: 32,
-	},
-	primaryButton: {
-		backgroundColor: '#377DFF',
-	},
-	secondaryButton: {
-		backgroundColor: '#E0E0E0',
-	},
-	buttonText: {
-		color: '#000',
-		fontWeight: 'bold',
+		marginBottom: '10%',
 	},
 	stepIndicatorContainer: {
 		display: 'flex',
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'center',
-		flex: 1,
-		marginBottom: 80,
 	},
 	stepIndicator: {
-		width: 32,
-		height: 8,
+		width: 45,
+		height: 15,
 		borderRadius: 8,
-		marginTop: 'auto',
 		marginHorizontal: 4,
-		backgroundColor: '#E0E0E0',
+		backgroundColor: '#ffffff',
 	},
 	activeStep: {
-		backgroundColor: '#377DFF',
+		backgroundColor: Colors.blue.primary,
 	},
 });
 

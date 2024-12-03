@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import schedule
 import time
 import random

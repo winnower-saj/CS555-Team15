@@ -1,39 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, Alert, Image, FlatList, TouchableOpacity } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { useRouter } from 'expo-router';
 import { getUserSession } from '../services/authService';
 import { deleteUser } from '../services/dbService';
 import { useAuth } from '../context/authContext';
-import ProtectedRoute from './components/ProtectedRoute';
 import DeleteAccountModal from './components/DeleteAccountModal';
 import AccountDeletedModal from './components/AccountDeletedModal';
+import PageHeading from './components/PageHeading';
 
-const DeleteAccount = () => {
+const DeleteAccount = ({ navigation, route }) => {
     const router = useRouter();
+    const { user } = route.params;
     const { logout } = useAuth();
     const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
     const [showAccountDeletedModal, setShowAccountDeletedModal] = useState(false);
-    const [userData, setUserData] = useState({ firstName: '', lastName: '' });
-
-    // Get the user data from session
-    useEffect(() => {
-        const loadUserData = async () => {
-            const userSession = await getUserSession();
-            if (userSession?.firstName && userSession?.lastName) {
-                setUserData({ firstName: userSession.firstName, lastName: userSession.lastName });
-            } else {
-                Alert.alert('No active session found.');
-            }
-        };
-
-        loadUserData();
-    }, []);
-
-    // Go to previous screen
-    const handleBackPress = () => {
-        router.back();
-    };
 
     // Show the DeleteAccountModal
     const handleLDeleteAccountPress = () => {
@@ -52,28 +32,36 @@ const DeleteAccount = () => {
         // Clear local session
         await logout();
 
-        // Redirect to signup page
         router.replace('/signup');
     }
 
     const handleDeleteAccount = async () => {
-        // Retrive current user session
         const userSession = await getUserSession();
 
-        if (userSession?.refreshToken) {
-            try {
-                // Delete the user account
-                await deleteUser(userSession.userId, userSession.refreshToken);
-
-                // Show the AccountDeletedModal
-                setShowAccountDeletedModal(true);
-
-            } catch (error) {
-                Alert.alert(error.message || 'An unexpected error occured during deleting the account.');
-                console.error('Account deletion error:', error);
+        try {
+            if (userSession?.refreshToken) {
+                await deleteUser(user.userId, userSession.refreshToken);
             }
-        } else {
-            Alert.alert('No active session found.');
+
+            // Show the AccountDeletedModal
+            setShowAccountDeletedModal(true);
+
+        } catch (error) {
+            Alert.alert(
+                '⚠️ Account Delete Error',
+                '\nFailed to delete the account. Please try again.',
+                [
+                    {
+                        text: 'Close',
+                        onPress: () => console.log('Account Delete Error: Alert Closed'),
+                    },
+                ]
+            );
+
+            console.error(
+                'Account Delete Error:',
+                error.response?.data || error.message
+            );
         }
 
         // Hide the DeleteAccountModal
@@ -81,45 +69,40 @@ const DeleteAccount = () => {
     };
 
     return (
-        <ProtectedRoute>
-            <View style={styles.conatiner}>
-                <Text style={styles.title}>Delete Account</Text>
-                <View style={styles.userContainer}>
-                    <Image source={require('../assets/images/person.png')} style={styles.profileIcon} />
-                    <Text style={styles.userName}>{`${userData.firstName} ${userData.lastName}`}</Text>
-                </View>
-                <View style={styles.deleteInfoContainer}>
-                    <Text style={styles.deleteInfoTitle}>Things to check when deleting your account:</Text>
-                    <FlatList
-                        data={[
-                            { key: 'Deleting your account is permanent.' },
-                            { key: 'You will not be able to recover any data associated with it.' },
-                            { key: 'You will no longer have access to any features, services, or data linked to this account.' },
-                            { key: 'Any personalized voice profiles or settings will be permanently deleted.' }
-                        ]}
-                        renderItem={({ item }) => (
-                            <View style={styles.listItem}>
-                                <Text style={styles.listItemBullet}>{`\u2022`}</Text>
-                                <Text style={styles.listItemText}>{`${item.key}`}</Text>
-                            </View>
-                        )}
-                    >
-                    </FlatList>
-                </View>
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity onPress={handleLDeleteAccountPress}>
-                        <Text style={styles.deleteAccount}>Delete My Account</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={handleBackPress}>
-                        <Icon name='chevron-left' type='material' color='#FFFFFF' size={40} />
-                        <Text style={styles.buttonText}>Back</Text>
-                    </TouchableOpacity>
-                </View>
+        <View style={styles.conatiner}>
+            <PageHeading title='Delete Account' handlePress={() => navigation.navigate('settings')} />
 
-                <DeleteAccountModal showDeleteAccountModal={showDeleteAccountModal} handleCancel={handleCancel} handleDeleteAccount={handleDeleteAccount} />
-                <AccountDeletedModal showAccountDeletedModal={showAccountDeletedModal} handleClose={handleClose} />
+            <View style={styles.userContainer}>
+                <Image source={require('../assets/images/user.png')} style={styles.profileImage} />
+                <Text style={styles.userName}>{`${user.firstName} ${user.lastName}`}</Text>
             </View>
-        </ProtectedRoute>
+
+            <View style={styles.deleteInfoContainer}>
+                <Text style={styles.deleteInfoTitle}>Things to check when deleting your account:</Text>
+                <FlatList
+                    data={[
+                        { key: 'Deleting your account is permanent.' },
+                        { key: 'You will not be able to recover any data associated with it.' },
+                        { key: 'You will no longer have access to any features, services, or data linked to this account.' },
+                        { key: 'Any personalized voice profiles or\nsettings will be permanently deleted.' }
+                    ]}
+                    renderItem={({ item }) => (
+                        <View style={styles.listItem}>
+                            <Text style={styles.listItemBullet}>{`\u2022`}</Text>
+                            <Text style={styles.listItemText}>{`${item.key}`}</Text>
+                        </View>
+                    )}
+                >
+                </FlatList>
+            </View>
+
+            <TouchableOpacity onPress={handleLDeleteAccountPress}>
+                <Text style={styles.deleteAccount}>Delete My Account</Text>
+            </TouchableOpacity>
+
+            <DeleteAccountModal showDeleteAccountModal={showDeleteAccountModal} handleCancel={handleCancel} handleDeleteAccount={handleDeleteAccount} />
+            <AccountDeletedModal showAccountDeletedModal={showAccountDeletedModal} handleClose={handleClose} />
+        </View>
     );
 };
 
@@ -128,81 +111,56 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 20
-    },
-    title: {
-        fontSize: 32,
-        paddingTop: 20,
-        color: '#0077B6',
-        fontWeight: '600'
+        backgroundColor: '#ffffff',
+        paddingVertical: '5%',
     },
     userContainer: {
-        flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
     },
-    profileIcon: {
-        width: 150,
-        height: 150,
-        borderRadius: 100,
-        backgroundColor: 'black'
+    profileImage: {
+        width: 120,
+        height: 120,
+        marginBottom: '3%',
     },
     userName: {
         fontSize: 32,
-        marginTop: 10,
-        fontWeight: '600'
+        fontWeight: '600',
+        color: '#000000',
     },
     deleteInfoContainer: {
-        flex: 1.2,
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        width: '90%'
+        width: '100%',
+        paddingHorizontal: '5%',
+        marginTop: '10%',
     },
     deleteInfoTitle: {
-        alignSelf: 'flex-start',
-        fontWeight: 'bold',
         fontSize: 16,
-        marginBottom: 10
+        fontWeight: '600',
+        alignSelf: 'flex-start',
+        marginBottom: '3%',
     },
     listItem: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        padding: 5,
-        paddingLeft: 20
+        padding: '2%',
+        paddingLeft: '5%',
     },
     listItemBullet: {
         fontSize: 16,
-        marginRight: 10
+        marginRight: '3%',
     },
     listItemText: {
-        fontSize: 16
-    },
-    buttonContainer: {
-        alignItems: 'center'
+        fontSize: 16,
     },
     deleteAccount: {
         fontSize: 20,
         fontWeight: '600',
-        color: '#FF0000',
-        marginBottom: 50
+        color: '#ff0000',
+        marginBottom: '15%',
     },
-    button: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        backgroundColor: '#0077B6',
-        borderRadius: 50,
-        paddingTop: 15,
-        paddingBottom: 15,
-        paddingLeft: 20,
-        width: 250
-    },
-    buttonText: {
-        fontWeight: '600',
-        fontSize: 24,
-        color: '#FFFFFF',
-        marginLeft: 35
-    }
 });
 
 export default DeleteAccount;

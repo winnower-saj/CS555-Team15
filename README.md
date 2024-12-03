@@ -43,3 +43,83 @@ The system is divided into several major components:
 You can explore the app design on Figma [here](https://www.figma.com/proto/2bsdyAoSByOQaL1b2L7sXQ/VitaVoice?node-id=154-463&node-type=canvas&t=ncTtDgX0XsY34CTV-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1).
 
 ---
+
+## **How to Run**
+
+Follow these steps to set up and run the project:
+
+### **1. Clone the Repository**
+```bash
+git clone <repository_url>
+cd VitaVoice
+```
+### **2. Set Up the Server**
+1. Navigate to the Server directory:
+```bash
+cd Server
+```
+2. Create an .env file in this directory and add the following:
+```bash
+HOST='<YOUR_IP_ADDRESS>'
+DEEPGRAM_API_KEY='<Get your key from Deepgram>'
+```
+3. Install dependencies and start the Node.js server:
+```bash
+npm install
+npm start
+```
+### 3. Set Up the Voice Assistant Backend
+1. Open another terminal and navigate to the backend directory:
+```bash
+cd ../voice-assistant-backend
+```
+2. Create an .env file in this directory and add the following:
+```bash
+GROQ_API_KEY='<Get your GROQ key from Groq>'
+```
+3. Set up a Python virtual environment:
+
+- Linux/MacOS:
+```bash
+python3 -m venv your_env_name
+source your_env_name/bin/activate
+```
+- Windows:
+```bash
+python -m venv your_env_name
+your_env_name\Scripts\activate
+```
+4. Install portaudio:
+- Linux:
+```bash
+sudo apt-get install portaudio19-dev
+```
+- MacOS:
+```bash
+brew install portaudio
+```
+- Windows: Download and install from [PortAudio](https://www.portaudio.com/).
+5. Install Python dependencies:
+```bash
+pip install -r requirements.txt
+```
+6. Start the backend server:
+```bash
+uvicorn app.api_server:app --reload --host 0.0.0.0 --port 8000
+```
+## 4. Set Up the React Frontend
+1. Open another terminal and navigate to the VitaApp directory:
+```bash
+cd ../VitaApp
+```
+2. Navigate to the services folder and update the IP address:
+- Open assistantService.ts and dbService.ts:
+```typescript
+API_URL = '<YOUR_SERVER_IP>'
+```
+3. Return to the VitaApp directory and start the React frontend:
+```bash
+npm install
+npm start
+```
+

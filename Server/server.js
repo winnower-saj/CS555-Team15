@@ -1,24 +1,22 @@
-const dotenv = require('dotenv');
-const app = require('./app');
-const connectMongoDB = require('./config/mongoDB');
+import dotenv from 'dotenv';
+import app from './app.js';
 
 dotenv.config();
 
-const HOST = '192.168.1.202';
+const HOST = process.env.HOST;
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
 	try {
-		// Connect to MongoDB
-		await connectMongoDB();
-
 		// Start the server
 		app.listen(PORT, HOST, () => {
+			console.log('====================================');
 			console.log(`Server running on port ${PORT}`);
+			console.log('====================================');
 		});
 	} catch (error) {
 		console.error('Error starting server:', error.message);
-		process.exit(1); // Exit the process with an error code
+		process.exit(1);
 	}
 };
 
