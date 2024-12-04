@@ -1,5 +1,6 @@
+import re
+from transformers import pipeline
 import os
-# import logging
 from datetime import datetime
 from bson import ObjectId
 from dotenv import load_dotenv
@@ -20,26 +21,11 @@ from app.config.db_connection import mongo_instance
 load_dotenv()
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 
-class Message(BaseModel):
-    assistantText: str = Field(..., alias="assistantText")
-    userText: str = Field(..., alias="userText")
-    emotion: str = Field(..., alias="emotion")
-
-
-class Conversation(BaseModel):
-    userId: ObjectId = Field(..., alias="userId")
-    messages: List[Message] = Field(default=[])
-    createdAt: Optional[datetime] = Field(default_factory=datetime.now)
-    updatedAt: Optional[datetime] = Field(default_factory=datetime.now)
-
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-
 class VoiceAssistantLLM:
     def __init__(self):
         self.conversations = mongo_instance.conversations
-
-        self.llm = ChatGroq(temperature=0, model_name="mixtral-8x7b-32768", groq_api_key=GROQ_API_KEY)
+        self.llm = ChatGroq(temperature=0, model_name="mixtral-8x7b-32768", groq_api_key=GROQ_API_KEY)             # conversations
+        self.emotion_classifier = pipeline("text-classification", model="michellejieli/emotion_text_classifier")   # emotion detection
 
     async def fetch_user_conversation(self, user_id: str):
         conversation = await self.conversations.find_one({"userId": ObjectId(user_id)})
@@ -66,7 +52,19 @@ class VoiceAssistantLLM:
             upsert=True,
         )
 
+    def filter_emojis(self, text: str) -> str:
+        return re.sub(r'[^\w\s,.!?]', '', text)
+
+    async def detect_emotion(self, text: str) -> str:
+        result = self.emotion_classifier(text)
+        if result and isinstance(result, list):
+            return result[0]['label']
+        return "neutral"  # default emotion
+
     async def generate_response(self, user_id: str, user_input: str) -> str:
+        if not user_input.strip():  # if user speech is not detected
+            return "I'm sorry, I didn't quite get you, could you please repeat that?"
+
         conversation_history = await self.fetch_user_conversation(user_id)
 
         prompt_template = ChatPromptTemplate.from_messages([
@@ -92,10 +90,12 @@ class VoiceAssistantLLM:
             if not assistant_response:
                 raise ValueError("LLM returned an empty response.")
 
-            await self.save_conversation(user_id, user_input, assistant_response, emotion="neutral")  # Default neutral emotion as of now
+            assistant_response = self.filter_emojis(assistant_response)
+
+            emotion = await self.detect_emotion(user_input)
+
+            await self.save_conversation(user_id, user_input, assistant_response, emotion)
             return assistant_response
 
         except Exception as e:
             raise e
-
-
