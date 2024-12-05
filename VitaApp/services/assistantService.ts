@@ -3,7 +3,7 @@ const ELEVEN_LABS_API_KEY =
 const ELEVEN_LABS_VOICE_ID = 'pMsXgVXv3BLzUgSXRplE';
 
 const Config = {
-	API_URL: 'http://<SERVER_IP>',
+	API_URL: 'http://10.0.0.125',
 	NODE_PORT: 3000,
 	PYTHON_SERVER_PORT: 8000,
 };
@@ -11,20 +11,20 @@ const Config = {
 const clearConversation = async (formData) => {
 	try {
 	  const response = await fetch(`${Config.API_URL}:${Config.NODE_PORT}/uploads`, {
-		method: 'POST',
-		body: formData,
+				method: 'POST',
+				body: formData,
 
 	  });
-  
-	  if (!response.ok) {
+
+		if (!response.ok) {
 		console.error(`Server Error: ${response.status} - ${response.statusText}`);
-	  }
-  
-	  return response;
+		}
+
+		return response;
 	} catch (error) {
-	  console.error('Network request failed:', error);
+		console.error('Network request failed:', error);
 	}
-  };
+};
   
 
 const fetchTranscripts = async (userId, transcribedText) => {

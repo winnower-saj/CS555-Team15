@@ -9,7 +9,12 @@ import { Asset } from 'expo-asset';
 import { useFonts } from 'expo-font';
 import AppIntroduction from './components/AppIntroduction';
 import { AuthProvider, useAuth } from '../context/authContext';
+import {
+	NotificationProvider,
+	useNotification,
+} from '../context/notificationContext';
 import { getUserSession } from '../services/authService';
+import { registerForPushNotificationsAsync } from '../services/pushNotificationService';
 import LoginSignUp from './index';
 import Login from './login';
 import SignUp from './signup';
@@ -38,6 +43,7 @@ const RootLayoutContent = () => {
 	const [appState, setAppState] = useState(AppState.currentState);
 	const router = useRouter();
 	const { login, user } = useAuth();
+	const { setNotifications } = useNotification();
 	const [isAppReady, setIsAppReady] = useState(false);
 	const [isLoadDataComplete, setIsLoadDataComplete] = useState(false);
 	const [hasOpenedAppBefore, setHasOpenedAppBefore] = useState(false);
@@ -99,14 +105,43 @@ const RootLayoutContent = () => {
 			);
 			setHasOpenedAppBefore(hasOpenedBefore === 'true');
 			await loadUserData();
+			await setupPushNotifications();
 			setIsLoadDataComplete(true);
 		} catch (e) {
 			console.warn(e);
 		}
 	};
 
+	const setupPushNotifications = async () => {
+		const token = await registerForPushNotificationsAsync();
+		console.log('Expo Push Token registered:', token);
+		if (token) {
+			console.log('Expo Push Token registered:', token);
+			// Example of sending token to backend
+			// await saveExpoPushTokenToBackend(token);
+		}
+
+		// Add notification listener
+		const notificationListener =
+			Notifications.addNotificationReceivedListener((notification) => {
+				setNotifications((prev) => [
+					...prev,
+					{
+						id: notification.request.identifier,
+						title: notification.request.content.title,
+						body: notification.request.content.body,
+					},
+				]);
+			});
+
+		return () => {
+			Notifications.removeNotificationSubscription(notificationListener);
+		};
+	};
+
 	useEffect(() => {
 		loadData();
+		// setupPushNotifications();
 	}, []);
 
 	useEffect(() => {
@@ -222,7 +257,9 @@ const RootLayoutContent = () => {
 
 const RootLayout = () => (
 	<AuthProvider>
-		<RootLayoutContent />
+		<NotificationProvider>
+			<RootLayoutContent />
+		</NotificationProvider>
 	</AuthProvider>
 );
 

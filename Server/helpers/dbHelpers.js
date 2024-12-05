@@ -212,10 +212,11 @@ const saveConversation = async (userId, assistantText, userText, emotion) => {
 };
 
 // Create a new appointment
-const createAppointment = async (userId, title, details, date, time) => {
+// const createAppointment = async (userId, title, details, date, time) => {
+const createAppointment = async (userId, title, details, time) => {
 	try {
 		// Create an appointment object
-		const newAppointment = new Appointment({ userId, title, details, date, time });
+		const newAppointment = new Appointment({ userId, title, details, time });
 
 		// Save the new appointment
 		await newAppointment.save();

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const Config = {
-	API_URL: 'http://<SERVER_IP>:3000',
+	API_URL: 'http://10.0.0.125:3000',
 };
 
 // Sign up a user by sending thier data to the API
@@ -103,7 +103,7 @@ const updatePassword = async (userId: string, currentPassword: string, newPasswo
 		);
 		throw new Error(
 			error.response?.data.message ||
-			'Password update failed. Please try again.'
+				'Password update failed. Please try again.'
 		);
 	}
 };
