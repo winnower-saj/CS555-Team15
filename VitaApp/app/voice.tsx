@@ -228,7 +228,7 @@ export default function AudioMessageComponent() {
         onPress={recording ? stopRecording : startRecording}
       >
         <Image
-          source={require('../assets/images/splash.png')}
+          source={require('../assets/images/logo-white.png')}
           style={styles.assistantIcon}
         />
       </TouchableOpacity>
