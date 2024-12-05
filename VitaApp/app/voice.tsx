@@ -18,6 +18,7 @@ import {
   fetchReminders
 } from '../services/assistantService';
 import { getUserSession } from '../services/authService';
+import { playWordAssocGame, playMemoryCardGame } from './games';
 
 const ELEVEN_LABS_API_KEY =
   'sk_540dd348ff3604c77c8dcb85d7112437b193e80c7abaa55e';
@@ -109,6 +110,20 @@ export default function AudioMessageComponent() {
     }
   };
 
+  const handleCommand = async (command) => {
+    console.log('Processing command:', command);
+    let response = '';
+    if (command.includes('word association')) {
+        response = playWordAssocGame();
+    } else if (command.includes('memory card')) {
+        response = playMemoryCardGame();
+    } else {
+        response = "Sorry, I didn't understand. Please say 'Word Association' or 'Memory Card'.";
+    }
+    setResponseText(response); // Update UI
+    await playTTS(response); // Speak the response
+};
+
   const fetchUserId = async () => {
     try {
       const session = await getUserSession();
@@ -136,6 +151,7 @@ export default function AudioMessageComponent() {
         console.log(
           `Received response from EC2 backend: ${data.responseText}`
         );
+        await handleCommand(transcribedText);
         setResponseText(data.responseText);
         await playTTS(data.responseText);
       } else {
