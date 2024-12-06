@@ -59,8 +59,8 @@ const styles = StyleSheet.create({
 		marginTop: '20%',
 	},
 	icon: {
-		width: 100,
-		height: 100,
+		width: 120,
+		height: 120,
 		marginBottom: "5%",
 	},
 	appName: {
