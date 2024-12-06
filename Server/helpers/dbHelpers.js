@@ -270,11 +270,11 @@ const getMedicationCount = async (userId) => {
 
 const incrementConversationCount = async (userId) => {
 	try {
-		// Find the conversation record for the given user
-		const user = await User.findById(userId);
-		user.conversationCount=+1
-		// Return the count, or 0 if no conversation record exists
-		await user.save();
+		const conversationUser = await User.findById(userId);
+
+		conversationUser.conversationCount += 1
+
+		await conversationUser.save();
 	} catch (error) {
 		throw new Error('Error incrementing conversation count: ' + error.message);
 	}
@@ -282,11 +282,11 @@ const incrementConversationCount = async (userId) => {
 
 const incrementMedicationCount = async (userId) => {
 	try {
-		// Find the conversation record for the given user
-		const user = await User.findById(userId);
-		user.medicationCount=+1
-		// Return the count, or 0 if no conversation record exists
-		await user.save();
+		const medicationUser = await User.findById(userId);
+
+		medicationUser.medicationCount += 1
+
+		await medicationUser.save();
 	} catch (error) {
 		throw new Error('Error incrementing medication count: ' + error.message);
 	}

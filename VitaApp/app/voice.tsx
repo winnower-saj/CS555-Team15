@@ -227,7 +227,11 @@ export default function AudioMessageComponent() {
       if (response.ok) {
         const data = await response.json();
         console.log('Fetched reminders:', data.reminders);
-        const reminderInc=await incrementMedication(userId)
+
+        if (data.reminders.length === 0) {
+          await incrementMedication(userId);
+        }
+        
         for (const reminder of data.reminders) {
           await playTTS(reminder.assistantText);
         }

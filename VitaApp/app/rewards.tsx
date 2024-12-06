@@ -30,8 +30,8 @@ const RewardsScreen = ({ navigation,route }) => {
         const userId = user.userId
         const medCount = await fetchMedicationCount(userId); 
         const convCount = await fetchConversationCount(userId);
-        setMedicationCount(medCount);
-        setConversationCount(convCount);
+        setMedicationCount(medCount.medicationCount);
+        setConversationCount(convCount.conversationCount);
       } catch (error) {
         console.error('Error fetching counts:', error.message);
       }

@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema(
 			type: Number,
 			default: 0, // Tracks the total number of conversations done
 		},
-		reminderCount: {
+		medicationCount: {
 			type: Number,
 			default: 0, // Tracks the total number of conversations done
 		},

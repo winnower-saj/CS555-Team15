@@ -232,7 +232,7 @@ async function createRefreshToken(userId) {
 
 //get counts for medication and conversation
 router.get('/medication-count/:userId', async (req, res) => {
-	const { userId } = req.params;
+	const userId = req.params.userId;
 	try {
 		const medicationCount = await getMedicationCount(userId);
 		return res.status(200).json({ medicationCount });
@@ -243,7 +243,7 @@ router.get('/medication-count/:userId', async (req, res) => {
 });
 
 router.get('/conversation-count/:userId', async (req, res) => {
-	const { userId } = req.params;
+	const userId = req.params.userId;
 
 	try {
 		const conversationCount = await getConversationCount(userId);
@@ -255,7 +255,7 @@ router.get('/conversation-count/:userId', async (req, res) => {
 });
 
 router.post('/increment-conversation/:userId', async (req, res) => {
-    const { userId } = req.params;
+    const userId = req.params.userId;
 
     try {
         const updatedCount = await incrementConversationCount(userId);
@@ -268,7 +268,7 @@ router.post('/increment-conversation/:userId', async (req, res) => {
 
 // Route to increment medication count
 router.post('/increment-medication/:userId', async (req, res) => {
-    const { userId} = req.params;
+    const userId = req.params.userId;
 
     try {
         const updatedCount = await incrementMedicationCount(userId);

@@ -111,7 +111,7 @@ const updatePassword = async (userId: string, currentPassword: string, newPasswo
 // Fetch medication count
 const fetchMedicationCount = async (userId:string) => {
 	try {
-		const response = await axios.get(`${Config.API_URL}/medication-count/${userId}`);
+		const response = await axios.get(`${Config.API_URL}/auth/medication-count/${userId}`);
 		return response.data; // Assuming response.data contains the count
 	} catch (error) {
 		throw new Error(
@@ -123,7 +123,7 @@ const fetchMedicationCount = async (userId:string) => {
 // Fetch conversation count
 const fetchConversationCount = async (userId:string) => {
 	try {
-		const response = await axios.get(`${Config.API_URL}/conversation-count/${userId}`);
+		const response = await axios.get(`${Config.API_URL}/auth/conversation-count/${userId}`);
 		return response.data; // Assuming response.data contains the count
 	} catch (error) {
 		throw new Error(
@@ -135,7 +135,7 @@ const fetchConversationCount = async (userId:string) => {
 // Increment conversation count
 const incrementConversation= async (userId:string) => {
     try {
-        const response = await axios.post(`${Config.API_URL}/increment-conversation/${userId}`);
+        const response = await axios.post(`${Config.API_URL}/auth/increment-conversation/${userId}`);
         return response.data; // Assuming response.data contains the updated count and message
     } catch (error) {
         throw new Error(
@@ -147,7 +147,7 @@ const incrementConversation= async (userId:string) => {
 // Increment medication count
 const incrementMedication = async (userId:string) => {
     try {
-        const response = await axios.post(`${Config.API_URL}/increment-medication/${userId}`);
+        const response = await axios.post(`${Config.API_URL}/auth/increment-medication/${userId}`);
         return response.data; // Assuming response.data contains the updated count and message
     } catch (error) {
         throw new Error(
