@@ -16,6 +16,7 @@ interface AuthContextType {
 		phoneNumber: string
 	) => Promise<void>;
 	logout: () => Promise<void>;
+	setUser: React.Dispatch<React.SetStateAction<AuthContextType['user']>>;
 }
 
 export { AuthContextType };
