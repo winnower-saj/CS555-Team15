@@ -22,6 +22,7 @@ import PasswordManager from './passwordmanager';
 import Settings from './settings';
 import SoundAndVibration from './soundandvibration';
 import MyProfile from './my-profile';
+import RewardScreen from './rewards';
 
 const Drawer = createDrawerNavigator();
 const AuthStack = createStackNavigator();
@@ -213,6 +214,12 @@ const RootLayoutContent = () => {
 			<Drawer.Screen
 				name='my-profile'
 				component={MyProfile}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='rewards'
+				component={RewardScreen}
 				options={{ headerShown: false }}
 				initialParams={{ user }}
 			/>

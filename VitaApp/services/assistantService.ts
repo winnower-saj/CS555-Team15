@@ -3,7 +3,7 @@ const ELEVEN_LABS_API_KEY =
 const ELEVEN_LABS_VOICE_ID = 'pMsXgVXv3BLzUgSXRplE';
 
 const Config = {
-	API_URL: 'http://<SERVER_IP>',
+	API_URL: 'http://10.0.0.146',
 	NODE_PORT: 3000,
 	PYTHON_SERVER_PORT: 8000,
 };
