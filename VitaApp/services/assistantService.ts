@@ -1,7 +1,3 @@
-const ELEVEN_LABS_API_KEY =
-	'sk_540dd348ff3604c77c8dcb85d7112437b193e80c7abaa55e';
-const ELEVEN_LABS_VOICE_ID = 'pMsXgVXv3BLzUgSXRplE';
-
 const Config = {
 	API_URL: 'http://<SERVER_IP>',
 	NODE_PORT: 3000,
@@ -54,6 +50,18 @@ export const fetchReminders = async (userId) => {
 	  throw error;
 	}
   };
+
+  export const fetchQuestion = async (userId) => {
+	try {
+	  const response = await fetch(`${Config.API_URL}:${Config.PYTHON_SERVER_PORT}/reminiscent-question/${userId}`);
+	  return response;
+	} catch (error) {
+	  console.error('Error fetching reminiscent question:', error);
+	  throw error;
+	}
+  };
+  
+  
 
 
 export { clearConversation, fetchTranscripts };
