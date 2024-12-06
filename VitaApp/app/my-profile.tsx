@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Image, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import PageHeading from './components/PageHeading';
 import { Colors } from '../constants/Colors';
 import MediumButton from './components/MediumButton';
 import { updateUserProfile } from '../services/dbService';
-import { updateUserSession } from '../services/authService';
+import { useAuth } from '../context/authContext';
 
 const InfoFields = ({ isEditable, field, fieldValue, handleChangeText }) => {
     return (
@@ -20,12 +20,19 @@ const InfoFields = ({ isEditable, field, fieldValue, handleChangeText }) => {
     );
 };
 
-const MyProfile = ({ navigation, route }) => {
-    const { user } = route.params;
+const MyProfile = ({ navigation }) => {
+    const { user, setUser } = useAuth();
     const [firstName, setFirstName] = useState(user.firstName);
     const [lastName, setLastName] = useState(user.lastName);
     const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber);
     const [isEditable, setIsEditable] = useState(false);
+
+    // Sync the date with user context whenever user data changes
+    useEffect(() => {
+        setFirstName(user.firstName);
+        setLastName(user.lastName);
+        setPhoneNumber(user.phoneNumber);
+    }, [user]);
 
     const handleEditClick = () => {
         if (isEditable) {
@@ -48,7 +55,14 @@ const MyProfile = ({ navigation, route }) => {
                 });
 
                 if (response.status === 200) {
-                    await updateUserSession(firstName, lastName, phoneNumber);
+                    // Update user date in context and local storage
+                    setUser((previousUser) => ({
+                        ...previousUser,
+                        firstName,
+                        lastName,
+                        phoneNumber
+                    }));
+
                     Alert.alert('Profile Updated', '\nSuccessfully!');
                 }
             }
