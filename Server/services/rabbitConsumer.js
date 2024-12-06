@@ -4,8 +4,9 @@ import axios from 'axios';
 
 dotenv.config();
 
-const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://localhost';
-const QUEUE_NAME = 'reminders'; // Queue for notifications
+const RABBITMQ_URL = process.env.RABBITMQ_URL;
+const QUEUE_NAME = process.env.RABBITMQ_NOTIFICCATION_QUEUE; // Queue for notifications
+const EXCHANGE_NAME = 'delayed_exchange'; // Delayed exchange name
 
 // Function to send push notification via Expo API
 const sendPushNotification = async (expoPushToken, title, body) => {
@@ -45,7 +46,9 @@ const handleReminderMessage = async (message) => {
 		const body =
 			notificationType === 'day-before'
 				? `Reminder: ${title} is scheduled for tomorrow.`
-				: `Reminder: ${title} is scheduled in 3 hours.`;
+				: notificationType === 'three-hours'
+				? `Reminder: ${title} is scheduled in 3 hours.`
+				: `Reminder: ${title} is scheduled soon.`;
 
 		await sendPushNotification(expoPushToken, 'Reminder Alert', body);
 		console.log(
@@ -62,8 +65,14 @@ const startConsumer = async () => {
 		const connection = await amqp.connect(RABBITMQ_URL);
 		const channel = await connection.createChannel();
 
-		// Assert the queue
+		// Assert the delayed exchange and bind the queue
+		await channel.assertExchange(EXCHANGE_NAME, 'x-delayed-message', {
+			durable: true,
+			arguments: { 'x-delayed-type': 'direct' },
+		});
 		await channel.assertQueue(QUEUE_NAME, { durable: true });
+		await channel.bindQueue(QUEUE_NAME, EXCHANGE_NAME, QUEUE_NAME);
+
 		console.log(`Listening for messages on queue: ${QUEUE_NAME}`);
 
 		// Consume messages from the queue

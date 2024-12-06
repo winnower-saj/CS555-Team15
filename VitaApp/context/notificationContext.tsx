@@ -24,6 +24,7 @@ const NotificationContext = createContext<NotificationContextType | undefined>(
 
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 	const [notifications, setNotifications] = useState<Notification[]>([]);
+	// console.log('notifications: ', notifications);
 
 	useEffect(() => {
 		const notificationListener =

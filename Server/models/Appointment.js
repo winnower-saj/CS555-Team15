@@ -15,17 +15,7 @@ const appointmentSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
-		// date: {
-		// 	type: Date,
-		// 	required: true,
-		// },
-		// time: {
-		// 	type: String,
-		// 	required: true,
-		// },
 		time: { type: Date, required: true },
-		// isDayBeforeSent: { type: Boolean, default: false },
-		// isThreeHoursBeforeSent: { type: Boolean, default: false },
 	},
 	{ timestamps: true }
 );

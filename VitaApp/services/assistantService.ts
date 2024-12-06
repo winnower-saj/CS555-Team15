@@ -3,21 +3,25 @@ const ELEVEN_LABS_API_KEY =
 const ELEVEN_LABS_VOICE_ID = 'pMsXgVXv3BLzUgSXRplE';
 
 const Config = {
-	API_URL: 'http://10.0.0.125',
+	API_URL: 'http://<SERVER_IP>',
 	NODE_PORT: 3000,
 	PYTHON_SERVER_PORT: 8000,
 };
 
 const clearConversation = async (formData) => {
 	try {
-	  const response = await fetch(`${Config.API_URL}:${Config.NODE_PORT}/uploads`, {
+		const response = await fetch(
+			`${Config.API_URL}:${Config.NODE_PORT}/uploads`,
+			{
 				method: 'POST',
 				body: formData,
-
-	  });
+			}
+		);
 
 		if (!response.ok) {
-		console.error(`Server Error: ${response.status} - ${response.statusText}`);
+			console.error(
+				`Server Error: ${response.status} - ${response.statusText}`
+			);
 		}
 
 		return response;
@@ -25,7 +29,6 @@ const clearConversation = async (formData) => {
 		console.error('Network request failed:', error);
 	}
 };
-  
 
 const fetchTranscripts = async (userId, transcribedText) => {
 	try {
@@ -36,7 +39,7 @@ const fetchTranscripts = async (userId, transcribedText) => {
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ userId: userId, text: transcribedText}),
+				body: JSON.stringify({ userId: userId, text: transcribedText }),
 			}
 		);
 		return response;
@@ -47,13 +50,14 @@ const fetchTranscripts = async (userId, transcribedText) => {
 
 export const fetchReminders = async (userId) => {
 	try {
-	  const response = await fetch(`${Config.API_URL}:${Config.PYTHON_SERVER_PORT}/get-reminders/${userId}`);
-	  return response;
+		const response = await fetch(
+			`${Config.API_URL}:${Config.PYTHON_SERVER_PORT}/get-reminders/${userId}`
+		);
+		return response;
 	} catch (error) {
-	  console.error('Error fetching reminders:', error);
-	  throw error;
+		console.error('Error fetching reminders:', error);
+		throw error;
 	}
-  };
-
+};
 
 export { clearConversation, fetchTranscripts };

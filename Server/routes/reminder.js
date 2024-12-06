@@ -7,7 +7,7 @@ import { scheduleReminders } from '../helpers/remindersHelper.js';
 dotenv.config();
 
 router.post('/appointments', async (req, res) => {
-	const { userId, title, description, time, expoPushToken } = req.body;
+	const { userId, title, details, time, expoPushToken } = req.body;
 
 	try {
 		if (!userId || !title || !time || !expoPushToken) {
@@ -15,13 +15,7 @@ router.post('/appointments', async (req, res) => {
 		}
 
 		// Save the reminder to the database
-		const reminder = await createAppointment(
-			userId,
-			title,
-			description,
-			null,
-			time
-		);
+		const reminder = await createAppointment(userId, title, details, time);
 		reminder.expoPushToken = expoPushToken;
 
 		// Schedule reminders with RabbitMQ

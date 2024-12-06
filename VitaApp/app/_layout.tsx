@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SplashScreen from 'expo-splash-screen';
+import * as ExpoNotifications from 'expo-notifications';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useRouter } from 'expo-router';
@@ -27,6 +28,7 @@ import PasswordManager from './passwordmanager';
 import Settings from './settings';
 import SoundAndVibration from './soundandvibration';
 import MyProfile from './my-profile';
+import { saveExpoPushTokenToBackend } from '../services/dbService';
 
 const Drawer = createDrawerNavigator();
 const AuthStack = createStackNavigator();
@@ -84,6 +86,8 @@ const RootLayoutContent = () => {
 				session.lastName,
 				session.phoneNumber
 			);
+
+			await setupPushNotifications(session.userId);
 		}
 	};
 
@@ -105,43 +109,46 @@ const RootLayoutContent = () => {
 			);
 			setHasOpenedAppBefore(hasOpenedBefore === 'true');
 			await loadUserData();
-			await setupPushNotifications();
 			setIsLoadDataComplete(true);
 		} catch (e) {
 			console.warn(e);
 		}
 	};
 
-	const setupPushNotifications = async () => {
-		const token = await registerForPushNotificationsAsync();
-		console.log('Expo Push Token registered:', token);
-		if (token) {
-			console.log('Expo Push Token registered:', token);
-			// Example of sending token to backend
-			// await saveExpoPushTokenToBackend(token);
+	const setupPushNotifications = async (userId) => {
+		if (userId) {
+			const token = await registerForPushNotificationsAsync();
+			if (token) {
+				// console.log('Expo Push Token registered:', token);
+				// Example of sending token to backend
+				await saveExpoPushTokenToBackend(userId, token);
+			}
 		}
 
 		// Add notification listener
 		const notificationListener =
-			Notifications.addNotificationReceivedListener((notification) => {
-				setNotifications((prev) => [
-					...prev,
-					{
-						id: notification.request.identifier,
-						title: notification.request.content.title,
-						body: notification.request.content.body,
-					},
-				]);
-			});
+			ExpoNotifications.addNotificationReceivedListener(
+				(notification) => {
+					setNotifications((prev) => [
+						...prev,
+						{
+							id: notification.request.identifier,
+							title: notification.request.content.title,
+							body: notification.request.content.body,
+						},
+					]);
+				}
+			);
 
 		return () => {
-			Notifications.removeNotificationSubscription(notificationListener);
+			ExpoNotifications.removeNotificationSubscription(
+				notificationListener
+			);
 		};
 	};
 
 	useEffect(() => {
 		loadData();
-		// setupPushNotifications();
 	}, []);
 
 	useEffect(() => {

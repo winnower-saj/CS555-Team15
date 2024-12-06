@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const Config = {
-	API_URL: 'http://10.0.0.125:3000',
+	API_URL: 'http://<SERVER_IP>:3000',
 };
 
 // Sign up a user by sending thier data to the API
@@ -68,13 +68,14 @@ const deleteUser = async (userId: string, refreshToken: string) => {
 
 // Update users information
 const updateUserProfile = async (userData: {
-	userId: string,
-	firstName: string,
-	lastName: string,
-	phoneNumber: string
+	userId: string;
+	firstName: string;
+	lastName: string;
+	phoneNumber: string;
 }) => {
 	try {
-		const response = await axios.patch(`${Config.API_URL}/auth/update-profile`,
+		const response = await axios.patch(
+			`${Config.API_URL}/auth/update-profile`,
 			userData
 		);
 
@@ -85,7 +86,11 @@ const updateUserProfile = async (userData: {
 };
 
 //Compare and update password
-const updatePassword = async (userId: string, currentPassword: string, newPassword: string) => {
+const updatePassword = async (
+	userId: string,
+	currentPassword: string,
+	newPassword: string
+) => {
 	try {
 		const response = await axios.patch(
 			`${Config.API_URL}/auth/update-password`,
@@ -128,6 +133,20 @@ const refreshAccessToken = async (refreshToken: any) => {
 		return null;
 	}
 };
+const saveExpoPushTokenToBackend = async (userId, token) => {
+	try {
+		const response = await axios.post(`${Config.API_URL}/auth/save-token`, {
+			userId: userId,
+			expoPushToken: token,
+		});
+	} catch (error) {
+		console.error(
+			'Error saving push token to backend:',
+			error.message,
+			error
+		);
+	}
+};
 
 export {
 	signupUser,
@@ -137,4 +156,5 @@ export {
 	refreshAccessToken,
 	updateUserProfile,
 	updatePassword,
+	saveExpoPushTokenToBackend,
 };

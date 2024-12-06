@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema(
 					return isValidPhoneNumber(phoneNumber, 'US');
 				},
 				message: 'Please provide a valid phone number',
-			}
+			},
 		},
 		password: {
 			type: String,
@@ -36,9 +36,10 @@ const userSchema = new mongoose.Schema(
 			match: [
 				/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/,
 				'Password must be at least 8 characters long ' +
-				'and contain a mix of uppercase, lowercase, numbers, and special characters'
+					'and contain a mix of uppercase, lowercase, numbers, and special characters',
 			],
 		},
+		expoPushToken: { type: String },
 	},
 	{ timestamps: true }
 );
@@ -60,4 +61,5 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
 	return bcrypt.compare(enteredPassword, this.password);
 };
 
-export const UserModel = (userDatabase) => userDatabase.model('User', userSchema);
+export const UserModel = (userDatabase) =>
+	userDatabase.model('User', userSchema);

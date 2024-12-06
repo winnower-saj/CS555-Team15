@@ -5,12 +5,12 @@ import { useNotification } from '../context/notificationContext';
 
 const Notifications = ({ navigation }) => {
 	const { notifications } = useNotification(); // Access notifications from context
+	console.log('notifications: ', notifications);
 
 	const handleGesture = (event) => {
 		const { translationX } = event.nativeEvent;
 		if (translationX < -50) {
 			// Detect left swipe
-			// You can add functionality for left swipe here
 		} else if (translationX > 50) {
 			// Detect right swipe
 			navigation.navigate('home');

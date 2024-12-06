@@ -5,6 +5,7 @@ import { ConversationModel } from '../models/Conversation.js';
 import { AppointmentModel } from '../models/Appointment.js';
 import { MedicationModel } from '../models/Medication.js';
 import connectMongoDB from '../config/mongoDB.js';
+import mongoose from 'mongoose';
 
 const { userDatabase, healthDatabase } = connectMongoDB();
 const User = UserModel(userDatabase);
@@ -114,12 +115,7 @@ const deleteRefreshToken = async (token) => {
 };
 
 // Update user profile
-const updateUserProfile = async (
-	userId,
-	firstName,
-	lastName,
-	phoneNumber
-) => {
+const updateUserProfile = async (userId, firstName, lastName, phoneNumber) => {
 	try {
 		const updatedInfo = {};
 
@@ -137,7 +133,7 @@ const updateUserProfile = async (
 
 		// Find and update user details
 		const updatedUser = await User.findByIdAndUpdate(userId, updatedInfo, {
-			new: true
+			new: true,
 		});
 
 		if (!updatedUser) {
@@ -145,7 +141,27 @@ const updateUserProfile = async (
 		}
 
 		return updatedUser;
+	} catch (error) {
+		throw new Error('Error updating user profile: ' + error.message);
+	}
+};
 
+// Update user expoToken
+const updateUserExpoToken = async (userId, expoPushToken) => {
+	try {
+		const { ObjectId } = mongoose.Types;
+		// Find and update user details
+		const updatedUser = await User.findOneAndUpdate(
+			{ _id: new ObjectId(userId) },
+			{ expoPushToken },
+			{ new: true, upsert: true }
+		);
+
+		if (!updatedUser) {
+			throw new Error('User not found');
+		}
+
+		return updatedUser;
 	} catch (error) {
 		throw new Error('Error updating user profile: ' + error.message);
 	}
@@ -187,11 +203,13 @@ const saveConversation = async (userId, assistantText, userText, emotion) => {
 			// Create a conversation object
 			conversation = new Conversation({
 				userId,
-				messages: [{
-					assistantText,
-					userText,
-					emotion,
-				}],
+				messages: [
+					{
+						assistantText,
+						userText,
+						emotion,
+					},
+				],
 			});
 		} else {
 			// Push the new message
@@ -212,11 +230,15 @@ const saveConversation = async (userId, assistantText, userText, emotion) => {
 };
 
 // Create a new appointment
-// const createAppointment = async (userId, title, details, date, time) => {
 const createAppointment = async (userId, title, details, time) => {
 	try {
 		// Create an appointment object
-		const newAppointment = new Appointment({ userId, title, details, time });
+		const newAppointment = new Appointment({
+			userId,
+			title,
+			details,
+			time,
+		});
 
 		// Save the new appointment
 		await newAppointment.save();
@@ -231,7 +253,13 @@ const createAppointment = async (userId, title, details, time) => {
 const saveMedication = async (userId, name, details, date, time) => {
 	try {
 		// Create a medication object
-		const newMedication = new Medication({ userId, name, details, date, time });
+		const newMedication = new Medication({
+			userId,
+			name,
+			details,
+			date,
+			time,
+		});
 
 		// Save the new medication
 		await newMedication.save();
@@ -251,8 +279,9 @@ export {
 	findRefreshToken,
 	deleteRefreshToken,
 	updateUserProfile,
+	updateUserExpoToken,
 	updateUserPassword,
 	saveConversation,
 	createAppointment,
-	saveMedication
+	saveMedication,
 };
