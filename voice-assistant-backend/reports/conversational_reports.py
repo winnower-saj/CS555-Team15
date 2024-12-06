@@ -94,7 +94,7 @@ def display_summary(summary):
     window.mainloop()
 
 async def main():
-    user_id = "<USER_ID>"
+    user_id = os.getenv("USER_ID")
     summarizer = ConversationSummarizer()
     summary = await summarizer.summarize_conversation(user_id)
     display_summary(summary)

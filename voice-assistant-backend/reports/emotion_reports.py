@@ -21,7 +21,7 @@ mongo_instance = MongoDB()
 
 async def fetch_weekly_emotions():
     conversations_collection = mongo_instance.conversations
-    user_id = "<USER_ID>"
+    user_id = os.getenv("USER_ID")
     one_week_ago = datetime.now() - timedelta(days=7)
     query = {"userId": ObjectId(user_id), "createdAt": {"$gte": one_week_ago}}
     projection = {"messages.emotion": 1}
