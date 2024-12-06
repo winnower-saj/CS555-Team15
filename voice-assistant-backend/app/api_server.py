@@ -5,22 +5,31 @@ import asyncio
 from app.LLM import VoiceAssistantLLM
 from app.reminders.medication_reminders import MedicationReminder
 from app.reminders.appointment_reminders import AppointmentReminder
+from app.daily_question_scheduler import ReminiscentQuestionScheduler
 from app.config.db_connection import mongo_instance
 from bson import ObjectId
 from datetime import datetime, timedelta
 
 app = FastAPI()
+
 llm = VoiceAssistantLLM()
 medication_reminder = MedicationReminder()
 appointment_reminder = AppointmentReminder()
+reminiscent_scheduler = ReminiscentQuestionScheduler(llm)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(medication_reminder.start_reminders())
+    asyncio.create_task(appointment_reminder.start_reminders())
 
 class TranscriptionRequest(BaseModel):
     userId: str
@@ -29,33 +38,20 @@ class TranscriptionRequest(BaseModel):
 @app.post("/process")
 async def process_transcription(request: TranscriptionRequest):
     try:
-        # Log the incoming request (optional logging setup)
-        # logger.info(f"Received request: {request.dict()}")
-
-        # Generate response from LLM
         llm_response = await llm.generate_response(request.userId, request.text)
-
         if llm_response:
             return {"responseText": llm_response}
         else:
             raise HTTPException(status_code=500, detail="LLM failed to generate a response.")
     except Exception as e:
-        # Log the error (optional logging setup)
-        # logger.error(f"An error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
-@app.on_event("startup")
-async def startup_event():
-    # Schedule medication reminders
-    asyncio.create_task(medication_reminder.start_reminders())
-
-    # Schedule appointment reminders
-    asyncio.create_task(appointment_reminder.start_reminders())
 
 # Root Endpoint Check
 @app.get("/")
 async def root():
     return {"message": "API Server with LLM and Reminders is running."}
+
 
 @app.get("/get-reminders/{userId}")
 async def get_reminders(userId: str):
@@ -91,3 +87,27 @@ async def get_reminders(userId: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
+
+@app.get("/reminiscent-question/{userId}")
+async def get_reminiscent_question(userId: str):
+    try:
+        result = await reminiscent_scheduler.ask_reminiscent_question(user_id=userId)
+        if result:
+            return result
+        else:
+            raise HTTPException(status_code=500, detail="Failed to generate reminiscent question")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
+
+@app.get("/reminiscent-questions")
+async def list_reminiscent_questions():
+    return {"questions": reminiscent_scheduler.reminiscent_questions}
+
+@app.post("/reminiscent-questions")
+async def add_reminiscent_question(question: BaseModel):
+    if question.text and question.text not in reminiscent_scheduler.reminiscent_questions:
+        reminiscent_scheduler.reminiscent_questions.append(question.text)
+        return {"message": "Question added successfully", "questions": reminiscent_scheduler.reminiscent_questions}
+    else:
+        raise HTTPException(status_code=400, detail="Question already exists or invalid input")

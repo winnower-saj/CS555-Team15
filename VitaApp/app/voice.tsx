@@ -15,7 +15,8 @@ global.Buffer = Buffer;
 import {
   clearConversation,
   fetchTranscripts,
-  fetchReminders
+  fetchReminders,
+  fetchQuestion
 } from '../services/assistantService';
 import { getUserSession } from '../services/authService';
 import { playWordAssocGame, playMemoryCardGame } from './games';
@@ -29,11 +30,14 @@ export default function AudioMessageComponent() {
   const [transcription, setTranscription] = useState('');
   const [responseText, setResponseText] = useState('');
   const [lastReminderTimestamp, setLastReminderTimestamp] = useState(null);
+  const [lastFetchedDate, setLastFetchedDate] = useState(null);
   const recordingRef = useRef(null);
+  const targetTime = '01:29';
 
   useEffect(() => {
     const interval = setInterval(() => {
       checkForReminders();
+      checkAndFetchQuestion();
     }, 60000); // Check every minute
 
     return () => clearInterval(interval);
@@ -235,6 +239,38 @@ export default function AudioMessageComponent() {
       console.error('Error fetching reminders:', error);
     }
   };
+
+  const checkAndFetchQuestion = async () => {
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const today = now.toDateString();
+
+    if (currentTime === targetTime && lastFetchedDate !== today) {
+      console.log('Target time reached. Fetching question...');
+      const userId = await fetchUserId();
+      if (userId) {
+        await fetchQuestionForUser(userId);
+        setLastFetchedDate(today);
+      }
+    }
+  };
+
+  const fetchQuestionForUser = async (userId) => {
+    try {
+      const response = await fetchQuestion(userId);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Fetched question:', data.question);
+
+        await playTTS(data.question);
+      } else {
+        console.error('Failed to fetch question. Server responded with:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching question:', error);
+    }
+  };
+
 
   return (
     <View style={styles.container}>
