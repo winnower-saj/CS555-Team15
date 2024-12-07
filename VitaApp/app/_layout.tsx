@@ -113,22 +113,24 @@ const RootLayoutContent = () => {
 		}
 	};
 
-	const setupPushNotifications = async () => {
-		const token = await registerForPushNotificationsAsync();
-
-		console.log('Expo Push Token registered:', token);
-
-		if (token) {
+	const setupPushNotifications = async (userId) => {
+		if (userId) {
+			const token = await registerForPushNotificationsAsync();
+	
 			console.log('Expo Push Token registered:', token);
+	
+			if (token) {
+				console.log('Expo Push Token registered:', token);
+	
+				// Example of sending token to backend
+				await saveExpoPushTokenToBackend(userId, token);
 
-			// Example of sending token to backend
-			await saveExpoPushTokenToBackend(token);
-
+			}
 		}
 
 		// Add notification listener
 		const notificationListener =
-			Notifications.addNotificationReceivedListener((notification) => {
+			ExpoNotifications.addNotificationReceivedListener((notification) => {
 				setNotifications((prev) => [
 					...prev,
 					{
@@ -140,7 +142,7 @@ const RootLayoutContent = () => {
 			});
 
 		return () => {
-			Notifications.removeNotificationSubscription(notificationListener);
+			ExpoNotifications.removeNotificationSubscription(notificationListener);
 		};
 	};
 
