@@ -39,6 +39,14 @@ const userSchema = new mongoose.Schema(
 				'and contain a mix of uppercase, lowercase, numbers, and special characters'
 			],
 		},
+		conversationCount: {
+			type: Number,
+			default: 0, // Tracks the total number of conversations done
+		},
+		medicationCount: {
+			type: Number,
+			default: 0, // Tracks the total number of conversations done
+		},
 	},
 	{ timestamps: true }
 );
