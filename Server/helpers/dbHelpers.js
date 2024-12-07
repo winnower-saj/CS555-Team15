@@ -182,7 +182,6 @@ const updateUserPassword = async (
 const saveConversation = async (userId, assistantText, userText, emotion) => {
 	try {
 		let conversation = await Conversation.findOne({ userId });
-		const user = await User.findById(userId);
 
 		if (!conversation) {
 			// Create a conversation object
@@ -191,7 +190,7 @@ const saveConversation = async (userId, assistantText, userText, emotion) => {
 				messages: [{
 					assistantText,
 					userText,
-					emotion
+					emotion,
 				}],
 			});
 		} else {
@@ -205,8 +204,6 @@ const saveConversation = async (userId, assistantText, userText, emotion) => {
 
 		// Save the new conversation
 		await conversation.save();
-		user.conversationCount = (user.conversationCount || 0) + 1
-		await user.save();
 
 		return conversation;
 	} catch (error) {
@@ -230,10 +227,10 @@ const createAppointment = async (userId, title, details, date, time) => {
 };
 
 // Save a new medication
-const saveMedication = async (userId, name, details, date, time,count) => {
+const saveMedication = async (userId, name, details, date, time) => {
 	try {
 		// Create a medication object
-		const newMedication = new Medication({ userId, name, details, date, time,count });
+		const newMedication = new Medication({ userId, name, details, date, time });
 
 		// Save the new medication
 		await newMedication.save();
@@ -243,55 +240,6 @@ const saveMedication = async (userId, name, details, date, time,count) => {
 		throw new Error('Error adding medication: ' + error.message);
 	}
 };
-
-const getConversationCount = async (userId) => {
-	try {
-		// Find the conversation record for the given user
-		const user = await User.findById(userId);
-
-		// Return the count, or 0 if no conversation record exists
-		return user ? user.conversationCount : 0;
-	} catch (error) {
-		throw new Error('Error retrieving conversation count: ' + error.message);
-	}
-};
-
-const getMedicationCount = async (userId) => {
-	try {
-		// Find the medication record for the given user
-		const user = await User.findById(userId);
-
-		// Return the count, or 0 if no medication record exists
-		return user ? user.medicationCount : 0;
-	} catch (error) {
-		throw new Error('Error retrieving medication count: ' + error.message);
-	}
-};
-
-const incrementConversationCount = async (userId) => {
-	try {
-		const conversationUser = await User.findById(userId);
-
-		conversationUser.conversationCount += 1
-
-		await conversationUser.save();
-	} catch (error) {
-		throw new Error('Error incrementing conversation count: ' + error.message);
-	}
-};
-
-const incrementMedicationCount = async (userId) => {
-	try {
-		const medicationUser = await User.findById(userId);
-
-		medicationUser.medicationCount += 1
-
-		await medicationUser.save();
-	} catch (error) {
-		throw new Error('Error incrementing medication count: ' + error.message);
-	}
-};
-
 
 export {
 	findUserByPhoneNumber,
@@ -305,9 +253,5 @@ export {
 	updateUserPassword,
 	saveConversation,
 	createAppointment,
-	saveMedication,
-	getMedicationCount,
-	getConversationCount,
-	incrementConversationCount,
-	incrementMedicationCount,
+	saveMedication
 };

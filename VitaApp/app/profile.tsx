@@ -133,14 +133,11 @@ const Profile = ({ navigation, route }) => {
 						handleOnPress={() => navigation.navigate('my-profile')}
 					/>
 					<MenuItem
-						menuIcon='gift-outline'
-						menuTitle='Rewards'
-						handleOnPress={() => navigation.navigate('rewards')}
-					/>
-					<MenuItem
 						menuIcon='lock-closed'
 						menuTitle='Privacy Policy'
-						handleOnPress={() => navigation.navigate('privacypolicy')}
+						handleOnPress={() =>
+							navigation.navigate('privacypolicy')
+						}
 					/>
 					<MenuItem
 						menuIcon='settings'

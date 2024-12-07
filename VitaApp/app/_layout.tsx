@@ -23,7 +23,6 @@ import Settings from './settings';
 import SoundAndVibration from './soundandvibration';
 import MyProfile from './my-profile';
 import Chat from './chat';
-import RewardScreen from './rewards';
 
 const Drawer = createDrawerNavigator();
 const AuthStack = createStackNavigator();
@@ -221,12 +220,6 @@ const RootLayoutContent = () => {
 			<Drawer.Screen
 				name='chat'
 				component={Chat}
-				options={{ headerShown: false }}
-				initialParams={{ user }}
-			/>
-			<Drawer.Screen
-				name='rewards'
-				component={RewardScreen}
 				options={{ headerShown: false }}
 				initialParams={{ user }}
 			/>

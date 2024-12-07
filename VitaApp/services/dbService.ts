@@ -108,54 +108,6 @@ const updatePassword = async (userId: string, currentPassword: string, newPasswo
 	}
 };
 
-// Fetch medication count
-const fetchMedicationCount = async (userId:string) => {
-	try {
-		const response = await axios.get(`${Config.API_URL}/auth/medication-count/${userId}`);
-		return response.data; // Assuming response.data contains the count
-	} catch (error) {
-		throw new Error(
-			error.response?.data.message || 'Failed to fetch medication count.'
-		);
-	}
-};
-
-// Fetch conversation count
-const fetchConversationCount = async (userId:string) => {
-	try {
-		const response = await axios.get(`${Config.API_URL}/auth/conversation-count/${userId}`);
-		return response.data; // Assuming response.data contains the count
-	} catch (error) {
-		throw new Error(
-			error.response?.data.message || 'Failed to fetch conversation count.'
-		);
-	}
-};
-
-// Increment conversation count
-const incrementConversation= async (userId:string) => {
-    try {
-        const response = await axios.post(`${Config.API_URL}/auth/increment-conversation/${userId}`);
-        return response.data; // Assuming response.data contains the updated count and message
-    } catch (error) {
-        throw new Error(
-            error.response?.data.message || 'Failed to increment conversation count.'
-        );
-    }
-};
-
-// Increment medication count
-const incrementMedication = async (userId:string) => {
-    try {
-        const response = await axios.post(`${Config.API_URL}/auth/increment-medication/${userId}`);
-        return response.data; // Assuming response.data contains the updated count and message
-    } catch (error) {
-        throw new Error(
-            error.response?.data.message || 'Failed to increment medication count.'
-        );
-    }
-};
-
 const refreshAccessToken = async (refreshToken: any) => {
 	try {
 		const response = await fetch(`${Config.API_URL}/token`, {
@@ -177,8 +129,6 @@ const refreshAccessToken = async (refreshToken: any) => {
 	}
 };
 
-
-
 export {
 	signupUser,
 	loginUser,
@@ -187,8 +137,4 @@ export {
 	refreshAccessToken,
 	updateUserProfile,
 	updatePassword,
-	fetchMedicationCount,
-	fetchConversationCount,
-	incrementConversation,
-	incrementMedication,
 };

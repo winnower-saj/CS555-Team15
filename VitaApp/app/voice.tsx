@@ -18,7 +18,6 @@ import {
 	fetchReminders,
 	fetchQuestion
 } from '../services/assistantService';
-import { incrementConversation, incrementMedication } from '../services/dbService';
 import { getUserSession } from '../services/authService';
 import { playWordAssocGame, playMemoryCardGame } from './games';
 import { Colors } from '../constants/Colors';
@@ -87,7 +86,6 @@ export default function AudioMessageComponent() {
 	const uploadAudio = async (uri) => {
 		console.log('Preparing to upload audio...');
 		try {
-			const userId = await fetchUserId();
 			const formData = new FormData();
 			formData.append('file', {
 				uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
@@ -104,7 +102,6 @@ export default function AudioMessageComponent() {
 				console.log(`Received transcription: ${result.transcription}`);
 				setTranscription(result.transcription);
 				await processTranscription(result.transcription);
-				const conversationInc=await incrementConversation(userId)
 			} else {
 				console.error(
 					'Failed to upload audio. Server responded with:',
@@ -232,9 +229,7 @@ export default function AudioMessageComponent() {
 			if (response.ok) {
 				const data = await response.json();
 				console.log('Fetched reminders:', data.reminders);
-				if (data.reminders.length === 0) {
-					await incrementMedication(userId);
-				  }
+
 				for (const reminder of data.reminders) {
 					await playTTS(reminder.assistantText);
 				}
