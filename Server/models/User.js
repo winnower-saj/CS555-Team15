@@ -33,11 +33,18 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			required: [true, 'Password is required'],
 			minLength: [8, 'Password must be at least 8 characters long'],
-			match: [
-				/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/,
-				'Password must be at least 8 characters long ' +
-				'and contain a mix of uppercase, lowercase, numbers, and special characters'
-			],
+			validate: {
+				validator: function (password) {
+					const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+					if (this.isModified('password')) {
+						return passwordRegex.test(password);
+					}
+					
+					return true;
+				},
+				message: 'Password must be at least 8 characters long ' +
+				'and contain a mix of uppercase, lowercase, numbers, and special characters',
+			}
 		},
 		conversationCount: {
 			type: Number,
