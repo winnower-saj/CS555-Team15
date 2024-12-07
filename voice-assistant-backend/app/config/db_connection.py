@@ -8,7 +8,7 @@ class MongoDB:
     def __init__(self):
         self.client = AsyncIOMotorClient(os.getenv("MONGODB_URI"))
         self.db = self.client["VitaVoiceHealth"]  # MongoDB database
-        self.conversations = self.db["conversationsTest2"]  # MongoDB collection
+        self.conversations = self.db["conversations"]  # MongoDB collection
         self.medications = self.db["medications"]  # Medications collection
         self.appointments = self.db["appointments"]  # Appointments collection
 

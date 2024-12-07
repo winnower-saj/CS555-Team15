@@ -6,7 +6,7 @@ from ..config.db_connection import mongo_instance
 class AppointmentReminder:
     def __init__(self):
         self.appointments = mongo_instance.get_collection("appointments")
-        self.conversations = mongo_instance.get_collection("conversationsTest2")
+        self.conversations = mongo_instance.get_collection("conversations")
 
     async def fetch_appointments(self):
         now = datetime.now()

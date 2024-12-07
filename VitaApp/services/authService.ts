@@ -47,14 +47,3 @@ export const clearUserSession = async () => {
 		console.error('Error clearing user session:', e);
 	}
 };
-
-// Update user session
-export const updateUserSession = async (firstName: string, lastName: string, phoneNumber: string) => {
-	try {
-		await AsyncStorage.setItem('firstName', firstName);
-		await AsyncStorage.setItem('lastName', lastName);
-		await AsyncStorage.setItem('phoneNumber', phoneNumber);
-	} catch (e) {
-		console.error('Error updating user session:', e);
-	}
-}
