@@ -27,27 +27,15 @@ const NotificationContext = createContext<NotificationContextType | undefined>(
 const initialNotifications: Notification[] = [
 	{
 		id: '1',
-		title: 'Reminder for Appointment',
-		body: 'Your appointment is scheduled for tomorrow.',
+		title: 'Physiotherapy Session Follow-up',
+		body: 'Physiotherapy session for knee pain at Active Life Therapy Center.',
 		timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
 	},
 	{
 		id: '2',
-		title: 'Medication Reminder',
-		body: 'Take your medication at 10 AM.',
+		title: 'Physiotherapy Session',
+		body: 'Quarterly appointment with Dr. Smith for blood pressure monitoring.',
 		timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-	},
-	{
-		id: '3',
-		title: 'Follow-Up Reminder',
-		body: 'Your follow-up is scheduled for next week.',
-		timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-	},
-	{
-		id: '4',
-		title: 'New Health Tips',
-		body: 'Check out the latest health tips in your app.',
-		timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
 	},
 ];
 

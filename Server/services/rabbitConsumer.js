@@ -48,7 +48,7 @@ const handleReminderMessage = async (message) => {
 				? `Reminder: ${title} is scheduled for tomorrow.`
 				: notificationType === 'three-hours'
 				? `Reminder: ${title} is scheduled in 3 hours.`
-				: `Reminder: ${title} is scheduled soon.`;
+				: `Reminder: ${title} is scheduled for tomorrow.`;
 
 		await sendPushNotification(expoPushToken, 'Reminder Alert', body);
 		console.log(
