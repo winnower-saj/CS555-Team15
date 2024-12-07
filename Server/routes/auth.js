@@ -11,6 +11,10 @@ import {
 	updateUserPassword,
 	updateUserProfile,
 	updateUserExpoToken,
+	getConversationCount,
+	getMedicationCount,
+	incrementConversationCount,
+	incrementMedicationCount,
 } from '../helpers/dbHelpers.js';
 const router = express.Router();
 import dotenv from 'dotenv';
@@ -252,5 +256,72 @@ async function createRefreshToken(userId) {
 
 	return refreshToken;
 }
+
+//get counts for medication and conversation
+router.get('/medication-count/:userId', async (req, res) => {
+	const userId = req.params.userId;
+	try {
+		const medicationCount = await getMedicationCount(userId);
+		return res.status(200).json({ medicationCount });
+	} catch (error) {
+		console.error('Error fetching medication count:', error.message);
+		return res
+			.status(500)
+			.json({ message: 'Server error fetching medication count' });
+	}
+});
+
+router.get('/conversation-count/:userId', async (req, res) => {
+	const userId = req.params.userId;
+
+	try {
+		const conversationCount = await getConversationCount(userId);
+		return res.status(200).json({ conversationCount });
+	} catch (error) {
+		console.error('Error fetching conversation count:', error.message);
+		return res
+			.status(500)
+			.json({ message: 'Server error fetching conversation count' });
+	}
+});
+
+router.post('/increment-conversation/:userId', async (req, res) => {
+	const userId = req.params.userId;
+
+	try {
+		const updatedCount = await incrementConversationCount(userId);
+		return res
+			.status(200)
+			.json({
+				message: 'Conversation count incremented',
+				count: updatedCount,
+			});
+	} catch (error) {
+		console.error('Error incrementing conversation count:', error.message);
+		return res
+			.status(500)
+			.json({ message: 'Server error incrementing conversation count' });
+	}
+});
+
+// Route to increment medication count
+router.post('/increment-medication/:userId', async (req, res) => {
+	const userId = req.params.userId;
+
+	try {
+		const updatedCount = await incrementMedicationCount(userId);
+		return res
+			.status(200)
+			.json({
+				message: 'Medication count incremented',
+				count: updatedCount,
+			});
+	} catch (error) {
+		console.error('Error incrementing medication count:', error.message);
+		return res
+			.status(500)
+			.json({ message: 'Server error incrementing medication count' });
+	}
+});
 
 export default router;

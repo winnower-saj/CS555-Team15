@@ -30,6 +30,7 @@ import SoundAndVibration from './soundandvibration';
 import MyProfile from './my-profile';
 import { saveExpoPushTokenToBackend } from '../services/dbService';
 import Chat from './chat';
+import RewardScreen from './rewards';
 
 const Drawer = createDrawerNavigator();
 const AuthStack = createStackNavigator();
@@ -256,6 +257,12 @@ const RootLayoutContent = () => {
 			<Drawer.Screen
 				name='my-profile'
 				component={MyProfile}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='rewards'
+				component={RewardScreen}
 				options={{ headerShown: false }}
 				initialParams={{ user }}
 			/>
