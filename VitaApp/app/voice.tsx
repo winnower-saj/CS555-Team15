@@ -156,7 +156,11 @@ export default function AudioMessageComponent() {
 				console.log(
 					`Received response from EC2 backend: ${data.responseText}`
 				);
-				await handleCommand(transcribedText);
+
+				if (transcribedText.includes('word association') || transcribedText.includes('memory card')) {
+					await handleCommand(transcribedText);
+				}
+
 				setResponseText(data.responseText);
 				await playTTS(data.responseText);
 			} else {

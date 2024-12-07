@@ -69,8 +69,7 @@ async def get_reminders(userId: str):
             appointment_date = appointment["date"].date()
             if appointment_date == tomorrow and appointment["time"] == current_time_str:
                 reminder_text = (
-                    f"Reminder for your appointment: {appointment['title']} - {appointment['details']} "
-                    f"on {appointment_date.strftime('%Y-%m-%d')} at {appointment['time']}."
+                    f"Friendly reminder: You have a '{appointment['title']}' coming up! Take care and see you soon!"
                 )
                 appointment_reminders.append({"assistantText": reminder_text, "userText": "", "emotion": "neutral"})
 
@@ -78,7 +77,7 @@ async def get_reminders(userId: str):
         async for medication in medications.find({"userId": ObjectId(userId)}):
             if medication["time"] == current_time_str:
                 reminder_text = (
-                    f"Reminder to take your medication: {medication['name']} - {medication['details']} at {medication['time']}."
+                    f"Friendly reminder: It's time for your {medication['name']}! - Please take a {medication['details']}. Stay healthy!"
                 )
                 medication_reminders.append({"assistantText": reminder_text, "userText": "", "emotion": "neutral"})
 
