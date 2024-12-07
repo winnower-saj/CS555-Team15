@@ -6,7 +6,7 @@ load_dotenv()
 
 class MongoDB:
     def __init__(self):
-        self.client = AsyncIOMotorClient(os.getenv("MONGODB_URI"))
+        self.client = AsyncIOMotorClient(os.getenv("MONGODB_URI"), tls=True,tlsAllowInvalidCertificates=True)
         self.db = self.client["VitaVoiceHealth"]  # MongoDB database
         self.conversations = self.db["conversations"]  # MongoDB collection
         self.medications = self.db["medications"]  # Medications collection

@@ -6,7 +6,7 @@ import {
 	StyleSheet,
 	TouchableOpacity,
 	Image,
-	Platform
+	Platform,
 } from 'react-native';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
@@ -16,16 +16,20 @@ import {
 	clearConversation,
 	fetchTranscripts,
 	fetchReminders,
-	fetchQuestion
+	fetchQuestion,
 } from '../services/assistantService';
 import { getUserSession } from '../services/authService';
-import { incrementConversation, incrementMedication } from '../services/dbService';
+import {
+	incrementConversation,
+	incrementMedication,
+} from '../services/dbService';
 import { playWordAssocGame, playMemoryCardGame } from './games';
 import { Colors } from '../constants/Colors';
 
 const ELEVEN_LABS_API_KEY =
-	'sk_540dd348ff3604c77c8dcb85d7112437b193e80c7abaa55e';
-const ELEVEN_LABS_VOICE_ID = 'pMsXgVXv3BLzUgSXRplE';
+	'sk_dfa379001439f6facf1d01e0ba2acc629c8084c00804ee01';
+// 'sk_0077d1721ef2a3594d73e1bb7bf910c6f3e036172166b78d';
+const ELEVEN_LABS_VOICE_ID = 'cgSgspJ2msm6clMCkdW9';
 
 export default function AudioMessageComponent() {
 	const [recording, setRecording] = useState(null);
@@ -104,7 +108,7 @@ export default function AudioMessageComponent() {
 				console.log(`Received transcription: ${result.transcription}`);
 				setTranscription(result.transcription);
 				await processTranscription(result.transcription);
-				const conversationInc=await incrementConversation(userId)
+				const conversationInc = await incrementConversation(userId);
 			} else {
 				console.error(
 					'Failed to upload audio. Server responded with:',
@@ -126,7 +130,8 @@ export default function AudioMessageComponent() {
 		} else if (command.includes('memory card')) {
 			response = playMemoryCardGame();
 		} else {
-			response = "Sorry, I didn't understand. Please say 'Word Association' or 'Memory Card'.";
+			response =
+				"Sorry, I didn't understand. Please say 'Word Association' or 'Memory Card'.";
 		}
 		setResponseText(response); // Update UI
 		await playTTS(response); // Speak the response
@@ -159,7 +164,12 @@ export default function AudioMessageComponent() {
 				console.log(
 					`Received response from EC2 backend: ${data.responseText}`
 				);
-				await handleCommand(transcribedText);
+				if (
+					transcribedText.includes('word association') ||
+					transcribedText.includes('memory card')
+				) {
+					await handleCommand(transcribedText);
+				}
 				setResponseText(data.responseText);
 				await playTTS(data.responseText);
 			} else {
@@ -234,13 +244,16 @@ export default function AudioMessageComponent() {
 				console.log('Fetched reminders:', data.reminders);
 				if (data.reminders.length === 0) {
 					await incrementMedication(userId);
-				  }
+				}
 
 				for (const reminder of data.reminders) {
 					await playTTS(reminder.assistantText);
 				}
 			} else {
-				console.error('Failed to fetch reminders. Server responded with:', response.status);
+				console.error(
+					'Failed to fetch reminders. Server responded with:',
+					response.status
+				);
 			}
 		} catch (error) {
 			console.error('Error fetching reminders:', error);
@@ -249,7 +262,10 @@ export default function AudioMessageComponent() {
 
 	const checkAndFetchQuestion = async () => {
 		const now = new Date();
-		const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+		const currentTime = `${String(now.getHours()).padStart(
+			2,
+			'0'
+		)}:${String(now.getMinutes()).padStart(2, '0')}`;
 		const today = now.toDateString();
 
 		if (currentTime === targetTime && lastFetchedDate !== today) {
@@ -271,18 +287,20 @@ export default function AudioMessageComponent() {
 
 				await playTTS(data.question);
 			} else {
-				console.error('Failed to fetch question. Server responded with:', response.status);
+				console.error(
+					'Failed to fetch question. Server responded with:',
+					response.status
+				);
 			}
 		} catch (error) {
 			console.error('Error fetching question:', error);
 		}
 	};
 
-
 	return (
 		<View style={styles.container}>
 			<TouchableOpacity
-				testID="assistant-button"
+				testID='assistant-button'
 				style={styles.assistant}
 				onPress={recording ? stopRecording : startRecording}
 			>

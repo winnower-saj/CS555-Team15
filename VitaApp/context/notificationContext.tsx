@@ -27,15 +27,15 @@ const NotificationContext = createContext<NotificationContextType | undefined>(
 const initialNotifications: Notification[] = [
 	{
 		id: '1',
-		title: 'Physiotherapy Session Follow-up',
-		body: 'Physiotherapy session for knee pain at Active Life Therapy Center.',
+		title: 'Physiotherapy Session',
+		body: 'Quarterly appointment with Dr. Smith for blood pressure monitoring is scheduled in 3 hours.',
 		timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
 	},
 	{
 		id: '2',
 		title: 'Physiotherapy Session',
-		body: 'Quarterly appointment with Dr. Smith for blood pressure monitoring.',
-		timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+		body: 'Quarterly appointment with Dr. Smith for blood pressure monitoring is scheduled for tomorrow.',
+		timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
 	},
 ];
 
