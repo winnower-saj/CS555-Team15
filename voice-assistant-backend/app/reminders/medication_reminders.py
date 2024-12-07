@@ -24,7 +24,7 @@ class MedicationReminder:
         await self.send_reminder(medication)
 
     async def send_reminder(self, medication):
-        reminder_text = f"Reminder to take your medication: {medication['name']} - {medication['details']} at {medication['time']}."
+        reminder_text = f"Friendly reminder: It's time for your {medication['name']}! - Please take a {medication['details']}. Stay healthy!."
         await self.conversations.update_one(
             {"userId": ObjectId(medication["userId"])},
             {

@@ -25,7 +25,7 @@ class AppointmentReminder:
 
     async def send_reminder(self, appointment):
         reminder_text = (
-            f"Reminder: You have an appointment '{appointment['title']}' scheduled for {appointment['date']} at {appointment['time']}. Details: {appointment['details']}."
+            f"Friendly reminder: You have a '{appointment['title']}' coming up! Take care and see you soon!"
         )
         await self.conversations.update_one(
             {"userId": ObjectId(appointment["userId"])},

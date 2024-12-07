@@ -7,6 +7,7 @@ import { useFocusEffect } from 'expo-router';
 import { getUserSession } from '../services/authService';
 import { fetchTranscripts } from '../services/assistantService';
 import uuid from 'react-native-uuid';
+import { playWordAssocGame, playMemoryCardGame } from './games';
 
 const Chat = ({ navigation }) => {
 	const scrollViewRef = useRef(null);
@@ -25,6 +26,20 @@ const Chat = ({ navigation }) => {
 
 			setUserText('');
 		}
+	};
+
+	const handleCommand = async (command) => {
+		console.log('Processing command:', command);
+		let response = '';
+		if (command.includes('word association')) {
+			response = playWordAssocGame();
+		} else if (command.includes('memory card')) {
+			response = playMemoryCardGame();
+		} else {
+			response = "Sorry, I didn't understand. Please say 'Word Association' or 'Memory Card'.";
+		}
+		
+		return response;
 	};
 
 	const fetchUserId = async () => {
@@ -55,6 +70,10 @@ const Chat = ({ navigation }) => {
 				console.log(
 					`Received response from EC2 backend: ${data.responseText}`
 				);
+
+				if (transcribedText.includes('word association') || transcribedText.includes('memory card')) {
+					data.responseText = await handleCommand(transcribedText);
+				}
 
 				const assistantMessageId = uuid.v4();
 				const assistantMessage = {
