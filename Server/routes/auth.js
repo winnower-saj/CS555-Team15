@@ -10,6 +10,7 @@ import {
 	deleteRefreshToken,
 	updateUserPassword,
 	updateUserProfile,
+	updateUserExpoToken,
 } from '../helpers/dbHelpers.js';
 const router = express.Router();
 import dotenv from 'dotenv';
@@ -220,5 +221,26 @@ async function createRefreshToken(userId) {
 
 	return refreshToken;
 }
+
+// Update expoPushToken route
+router.post('/save-token', async (req, res) => {
+    const { userId, expoPushToken } = req.body;
+    if (!userId || !expoPushToken) {
+        return res
+            .status(400)
+            .json({ message: 'userId and expoPushToken are required' });
+    }
+    try {
+        // Find the user and update or create the record
+        const user = await updateUserExpoToken(userId, expoPushToken);
+        res.status(200).json({
+            message: 'Push token saved successfully',
+            user,
+        });
+    } catch (error) {
+        console.error('Error saving push token:', error.message, error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
 
 export default router;

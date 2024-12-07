@@ -151,6 +151,25 @@ const updateUserProfile = async (
 	}
 };
 
+// Update user expoToken
+const updateUserExpoToken = async (userId, expoPushToken) => {
+    try {
+        const { ObjectId } = mongoose.Types;
+        // Find and update user details
+        const updatedUser = await User.findOneAndUpdate(
+            { _id: new ObjectId(userId) },
+            { expoPushToken },
+            { new: true, upsert: true }
+        );
+        if (!updatedUser) {
+            throw new Error('User not found');
+        }
+        return updatedUser;
+    } catch (error) {
+        throw new Error('Error updating user expo token: ' + error.message);
+    }
+};
+
 //To Update Password by UserID
 const updateUserPassword = async (
 	isPasswordCorrect,
@@ -212,10 +231,10 @@ const saveConversation = async (userId, assistantText, userText, emotion) => {
 };
 
 // Create a new appointment
-const createAppointment = async (userId, title, details, date, time) => {
+const createAppointment = async (userId, title, details, time) => {
 	try {
 		// Create an appointment object
-		const newAppointment = new Appointment({ userId, title, details, date, time });
+		const newAppointment = new Appointment({ userId, title, details, time });
 
 		// Save the new appointment
 		await newAppointment.save();
@@ -253,5 +272,6 @@ export {
 	updateUserPassword,
 	saveConversation,
 	createAppointment,
-	saveMedication
+	saveMedication,
+	updateUserExpoToken
 };

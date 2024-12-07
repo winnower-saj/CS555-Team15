@@ -23,8 +23,8 @@ import { playWordAssocGame, playMemoryCardGame } from './games';
 import { Colors } from '../constants/Colors';
 
 const ELEVEN_LABS_API_KEY =
-	'sk_540dd348ff3604c77c8dcb85d7112437b193e80c7abaa55e';
-const ELEVEN_LABS_VOICE_ID = 'pMsXgVXv3BLzUgSXRplE';
+	'sk_0077d1721ef2a3594d73e1bb7bf910c6f3e036172166b78d';
+const ELEVEN_LABS_VOICE_ID = 'cgSgspJ2msm6clMCkdW9';
 
 export default function AudioMessageComponent() {
 	const [recording, setRecording] = useState(null);

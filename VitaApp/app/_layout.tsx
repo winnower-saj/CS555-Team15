@@ -23,6 +23,10 @@ import Settings from './settings';
 import SoundAndVibration from './soundandvibration';
 import MyProfile from './my-profile';
 import Chat from './chat';
+import { NotificationProvider, useNotification } from '../context/notificationContext';
+import { registerForPushNotificationsAsync } from '../services/pushNotificationService';
+import * as ExpoNotifications from 'expo-notifications';
+import { saveExpoPushTokenToBackend } from '../services/dbService';
 
 const Drawer = createDrawerNavigator();
 const AuthStack = createStackNavigator();
@@ -45,6 +49,7 @@ const RootLayoutContent = () => {
 	const [isFontsLoaded] = useFonts({
 		SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
 	});
+	const { setNotifications } = useNotification();
 
 	useEffect(() => {
 		const handleAppStateChange = (nextAppState) => {
@@ -79,6 +84,8 @@ const RootLayoutContent = () => {
 				session.lastName,
 				session.phoneNumber
 			);
+
+			await setupPushNotifications(session.userId);
 		}
 	};
 
@@ -104,6 +111,37 @@ const RootLayoutContent = () => {
 		} catch (e) {
 			console.warn(e);
 		}
+	};
+
+	const setupPushNotifications = async () => {
+		const token = await registerForPushNotificationsAsync();
+
+		console.log('Expo Push Token registered:', token);
+
+		if (token) {
+			console.log('Expo Push Token registered:', token);
+
+			// Example of sending token to backend
+			await saveExpoPushTokenToBackend(token);
+
+		}
+
+		// Add notification listener
+		const notificationListener =
+			Notifications.addNotificationReceivedListener((notification) => {
+				setNotifications((prev) => [
+					...prev,
+					{
+						id: notification.request.identifier,
+						title: notification.request.content.title,
+						body: notification.request.content.body,
+					},
+				]);
+			});
+
+		return () => {
+			Notifications.removeNotificationSubscription(notificationListener);
+		};
 	};
 
 	useEffect(() => {
@@ -229,7 +267,9 @@ const RootLayoutContent = () => {
 
 const RootLayout = () => (
 	<AuthProvider>
-		<RootLayoutContent />
+		<NotificationProvider>
+			<RootLayoutContent />
+		</NotificationProvider>
 	</AuthProvider>
 );
 

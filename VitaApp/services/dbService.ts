@@ -129,6 +129,21 @@ const refreshAccessToken = async (refreshToken: any) => {
 	}
 };
 
+const saveExpoPushTokenToBackend = async (userId, token) => {
+    try {
+        const response = await axios.post(`${Config.API_URL}/auth/save-token`, {
+            userId: userId,
+            expoPushToken: token,
+        });
+    } catch (error) {
+        console.error(
+            'Error saving push token to backend:',
+            error.message,
+            error
+        );
+    }
+};
+
 export {
 	signupUser,
 	loginUser,
@@ -137,4 +152,5 @@ export {
 	refreshAccessToken,
 	updateUserProfile,
 	updatePassword,
+	saveExpoPushTokenToBackend,
 };

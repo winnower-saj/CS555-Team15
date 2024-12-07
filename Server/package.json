@@ -13,6 +13,8 @@
 	"description": "",
 	"dependencies": {
 		"@deepgram/sdk": "^3.0.0",
+		"amqplib": "^0.10.5",
+		"axios": "^1.7.9",
 		"bcryptjs": "^2.4.3",
 		"cors": "^2.8.5",
 		"dotenv": "^16.4.5",

@@ -39,6 +39,9 @@ const userSchema = new mongoose.Schema(
 				'and contain a mix of uppercase, lowercase, numbers, and special characters'
 			],
 		},
+		expoPushToken: { 
+			type: String 
+		},
 	},
 	{ timestamps: true }
 );
