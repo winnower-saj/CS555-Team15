@@ -36,9 +36,7 @@ class AppointmentReminder:
     async def send_reminder(self, appointment):
  
         reminder_text = (
-            f"Reminder: You have an appointment '{appointment['title']}' scheduled for "
-            f"{appointment['time'].strftime('%Y-%m-%d %I:%M %p')}. "
-            f"Details: {appointment['details']}."
+            f"Friendly reminder: You have a '{appointment['title']}' coming up! Take care and see you soon!"
         )
 
         await self.conversations.update_one(
