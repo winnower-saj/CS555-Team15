@@ -35,7 +35,7 @@ export default function AudioMessageComponent() {
       checkForReminders();
     }, 60000); // Check every minute
 
-    // return () => clearInterval(interval);
+    return () => clearInterval(interval);
   }, [lastReminderTimestamp]);
 
   const startRecording = async () => {

@@ -1,10 +1,20 @@
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 
 export async function registerForPushNotificationsAsync() {
 	let token;
-	// console.log('Constants: ', Constants);
-	if (true) {
+
+	const isRealDevice = () => {
+		if (Platform.OS === 'ios' || Platform.OS === 'android') {
+			return (
+				Constants.executionEnvironment === 'storeClient' ||
+				Constants.executionEnvironment === 'standalone'
+			);
+		}
+		return false;
+	};
+	if (isRealDevice()) {
 		const { status: existingStatus } =
 			await Notifications.getPermissionsAsync();
 		let finalStatus = existingStatus;
