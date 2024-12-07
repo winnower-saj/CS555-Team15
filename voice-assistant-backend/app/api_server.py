@@ -56,6 +56,11 @@ async def root():
 @app.get("/get-reminders/{userId}")
 async def get_reminders(userId: str):
     try:
+        try:
+            user_id_obj = ObjectId(userId)
+        except InvalidId:
+            raise HTTPException(status_code=400, detail="Invalid userId format")
+
         now = datetime.now()
         today = now.date()
         current_time_str = now.strftime("%I:%M %p")  # 12-hour formatting
@@ -65,16 +70,20 @@ async def get_reminders(userId: str):
         medications = mongo_instance.get_collection("medications")
 
         appointment_reminders = []
-        async for appointment in appointments.find({"userId": ObjectId(userId)}):
-            appointment_date = appointment["date"].date()
-            if appointment_date == tomorrow and appointment["time"] == current_time_str:
+        async for appointment in appointments.find({"userId": user_id_obj}):
+            appointment_time = appointment.get("time")  # ISO format datetime
+            if not appointment_time:
+                print(f"Skipping appointment without 'time': {appointment}")
+                continue 
+
+            if tomorrow == appointment_time.date() and appointment_time.hour == now.hour and appointment_time.minute == now.minute:
                 reminder_text = (
                     f"Friendly reminder: You have a '{appointment['title']}' coming up! Take care and see you soon!"
                 )
                 appointment_reminders.append({"assistantText": reminder_text, "userText": "", "emotion": "neutral"})
 
         medication_reminders = []
-        async for medication in medications.find({"userId": ObjectId(userId)}):
+        async for medication in medications.find({"userId": user_id_obj}):
             if medication["time"] == current_time_str:
                 reminder_text = (
                     f"Friendly reminder: It's time for your {medication['name']}! - Please take a {medication['details']}. Stay healthy!."
@@ -85,7 +94,7 @@ async def get_reminders(userId: str):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
-
+    
 
 @app.get("/reminiscent-question/{userId}")
 async def get_reminiscent_question(userId: str):
