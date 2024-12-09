@@ -37,7 +37,7 @@ class ReminiscentQuestionScheduler:
                     "$push": {
                         "messages": {
                             "assistantText": question,
-                            "userText": "",
+                            "userText": "reminiscent_question",
                             "emotion": "neutral"
                         }
                     },

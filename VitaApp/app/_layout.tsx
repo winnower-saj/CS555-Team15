@@ -31,6 +31,7 @@ import MyProfile from './my-profile';
 import { saveExpoPushTokenToBackend } from '../services/dbService';
 import Chat from './chat';
 import RewardScreen from './rewards';
+import { TTSProvider } from '../context/ttsContext';
 
 const Drawer = createDrawerNavigator();
 const AuthStack = createStackNavigator();
@@ -278,9 +279,11 @@ const RootLayoutContent = () => {
 
 const RootLayout = () => (
 	<AuthProvider>
-		<NotificationProvider>
-			<RootLayoutContent />
-		</NotificationProvider>
+		<TTSProvider>
+			<NotificationProvider>
+				<RootLayoutContent />
+			</NotificationProvider>
+		</TTSProvider>
 	</AuthProvider>
 );
 

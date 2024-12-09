@@ -25,6 +25,7 @@ import {
 } from '../services/dbService';
 import { playWordAssocGame, playMemoryCardGame } from './games';
 import { Colors } from '../constants/Colors';
+import { useTTS } from '../context/ttsContext';
 
 const ELEVEN_LABS_API_KEY =
 	'sk_dfa379001439f6facf1d01e0ba2acc629c8084c00804ee01';
@@ -38,11 +39,13 @@ export default function AudioMessageComponent() {
 	const [lastReminderTimestamp, setLastReminderTimestamp] = useState(null);
 	const [lastFetchedDate, setLastFetchedDate] = useState(null);
 	const recordingRef = useRef(null);
-	const targetTime = '01:29';
+	const targetTime = '18:53';
+	// const [isTTSActive, setIsTTSActive] = useState(false);
+	const { playTTS, isTTSActive } = useTTS();
 
 	useEffect(() => {
 		const interval = setInterval(() => {
-			checkForReminders();
+			// checkForReminders();
 			checkAndFetchQuestion();
 		}, 60000); // Check every minute
 
@@ -134,7 +137,9 @@ export default function AudioMessageComponent() {
 				"Sorry, I didn't understand. Please say 'Word Association' or 'Memory Card'.";
 		}
 		setResponseText(response); // Update UI
-		await playTTS(response); // Speak the response
+		if (!isTTSActive) {
+			await playTTS(response); // Speak the response
+		}
 	};
 
 	const fetchUserId = async () => {
@@ -168,10 +173,12 @@ export default function AudioMessageComponent() {
 					transcribedText.includes('word association') ||
 					transcribedText.includes('memory card')
 				) {
-					await handleCommand(transcribedText);
+					// await handleCommand(transcribedText);
 				}
 				setResponseText(data.responseText);
-				await playTTS(data.responseText);
+				if (!isTTSActive) {
+					await playTTS(data.responseText);
+				}
 			} else {
 				console.error(
 					'Failed to process transcription. Backend responded with:',
@@ -185,49 +192,25 @@ export default function AudioMessageComponent() {
 		}
 	};
 
-	const playTTS = async (text) => {
-		console.log('Requesting TTS from Eleven Labs...');
-		try {
-			const response = await fetch(
-				`https://api.elevenlabs.io/v1/text-to-speech/${ELEVEN_LABS_VOICE_ID}`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						'xi-api-key': ELEVEN_LABS_API_KEY,
-					},
-					body: JSON.stringify({
-						text,
-						voice_settings: {
-							stability: 0.5,
-							similarity_boost: 0.5,
-						},
-					}),
-				}
-			);
-
-			if (!response.ok) {
-				console.error('Failed to generate TTS:', response.statusText);
-				return;
-			}
-
-			const audioData = await response.arrayBuffer();
-			const fileUri = FileSystem.cacheDirectory + 'tts-audio.mp3';
-
-			await FileSystem.writeAsStringAsync(
-				fileUri,
-				Buffer.from(audioData).toString('base64'),
-				{
-					encoding: FileSystem.EncodingType.Base64,
-				}
-			);
-
-			const { sound } = await Audio.Sound.createAsync({ uri: fileUri });
-			await sound.playAsync();
-		} catch (error) {
-			console.error('Error with TTS:', error);
-		}
-	};
+	// const playTTS = async (text) => {
+	// 	if (!isTTSActive) {
+	// 		setIsTTSActive(true);
+	// 		try {
+	// 			console.log('Starting TTS using expo-speech...');
+	// 			Speech.speak(text, {
+	// 				onDone: () => setIsTTSActive(false),
+	// 				onStopped: () => setIsTTSActive(false),
+	// 				onError: (error) => {
+	// 					console.error('TTS Error:', error);
+	// 					setIsTTSActive(false);
+	// 				},
+	// 			});
+	// 		} catch (error) {
+	// 			console.error('Error with TTS:', error);
+	// 			setIsTTSActive(false);
+	// 		}
+	// 	}
+	// };
 
 	const checkForReminders = async () => {
 		try {
@@ -242,12 +225,14 @@ export default function AudioMessageComponent() {
 			if (response.ok) {
 				const data = await response.json();
 				console.log('Fetched reminders:', data.reminders);
-				if (data.reminders.length === 0) {
+				if (data.reminders.length !== 0) {
 					await incrementMedication(userId);
 				}
 
 				for (const reminder of data.reminders) {
-					await playTTS(reminder.assistantText);
+					if (!isTTSActive) {
+						await playTTS(reminder.assistantText);
+					}
 				}
 			} else {
 				console.error(
@@ -285,7 +270,9 @@ export default function AudioMessageComponent() {
 				const data = await response.json();
 				console.log('Fetched question:', data.question);
 
-				await playTTS(data.question);
+				if (!isTTSActive) {
+					await playTTS(data.question);
+				}
 			} else {
 				console.error(
 					'Failed to fetch question. Server responded with:',
@@ -309,7 +296,7 @@ export default function AudioMessageComponent() {
 					style={styles.assistantIcon}
 				/>
 			</TouchableOpacity>
-			{transcription ? (
+			{/* {transcription ? (
 				<Text style={styles.transcription}>
 					Transcription: {transcription}
 				</Text>
@@ -318,7 +305,7 @@ export default function AudioMessageComponent() {
 				<Text style={styles.responseText}>
 					Response: {responseText}
 				</Text>
-			) : null}
+			) : null} */}
 		</View>
 	);
 }

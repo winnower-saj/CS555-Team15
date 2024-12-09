@@ -35,7 +35,7 @@ const handleReminderMessage = async (message) => {
 		const reminder = JSON.parse(message.content.toString());
 		console.log('Processing reminder:', reminder);
 
-		const { expoPushToken, title, notificationType } = reminder;
+		const { expoPushToken, title, details, notificationType } = reminder;
 
 		if (!expoPushToken) {
 			console.error('Missing expoPushToken, skipping notification.');
@@ -45,12 +45,12 @@ const handleReminderMessage = async (message) => {
 		// Send the notification
 		const body =
 			notificationType === 'day-before'
-				? `Reminder: ${title} is scheduled for tomorrow.`
+				? `Friendly reminder: ${title} is scheduled for tomorrow! Take care and see you soon.`
 				: notificationType === 'three-hours'
-				? `Reminder: ${title} is scheduled in 3 hours.`
-				: `Reminder: ${title} is scheduled for tomorrow.`;
+				? `Friendly reminder: ${title} is scheduled in 3 hours! Take care and see you soon.`
+				: `Friendly reminder: ${title} is scheduled for tomorrow! Take care and see you soon.`;
 
-		await sendPushNotification(expoPushToken, 'Reminder Alert', body);
+		await sendPushNotification(expoPushToken, title, body);
 		console.log(
 			`Notification for "${title}" (${notificationType}) sent successfully.`
 		);

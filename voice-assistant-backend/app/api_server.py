@@ -76,7 +76,7 @@ async def get_reminders(userId: str):
                 print(f"Skipping appointment without 'time': {appointment}")
                 continue 
 
-            if tomorrow == appointment_time.date() and appointment_time.hour == now.hour and appointment_time.minute == now.minute:
+            if tomorrow == appointment_time.date() and appointment_time.hour == now.hour and appointment_time.minute == now.minute and appointment_time.second == now.second:
                 reminder_text = (
                     f"Friendly reminder: You have a '{appointment['title']}' coming up! Take care and see you soon!"
                 )

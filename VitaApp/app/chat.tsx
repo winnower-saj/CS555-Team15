@@ -1,5 +1,16 @@
-import React, { useRef, useState } from 'react'
-import { View, Image, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert, NativeSyntheticEvent, TextInputContentSizeChangeEventData } from 'react-native'
+import React, { useRef, useState } from 'react';
+import {
+	View,
+	Image,
+	Text,
+	StyleSheet,
+	TextInput,
+	TouchableOpacity,
+	ScrollView,
+	Alert,
+	NativeSyntheticEvent,
+	TextInputContentSizeChangeEventData,
+} from 'react-native';
 import PageHeading from './components/PageHeading';
 import { Colors } from '../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,6 +19,7 @@ import { getUserSession } from '../services/authService';
 import { fetchTranscripts } from '../services/assistantService';
 import uuid from 'react-native-uuid';
 import { playWordAssocGame, playMemoryCardGame } from './games';
+import { incrementConversation } from '../services/dbService';
 
 const Chat = ({ navigation }) => {
 	const scrollViewRef = useRef(null);
@@ -19,7 +31,11 @@ const Chat = ({ navigation }) => {
 	const handleSendMessage = async () => {
 		if (userText.trim() !== '') {
 			const userMessageId = uuid.v4();
-			const newMessage = { id: userMessageId, text: userText, sender: 'user' };
+			const newMessage = {
+				id: userMessageId,
+				text: userText,
+				sender: 'user',
+			};
 			setMessages((prevMessages) => [...prevMessages, newMessage]);
 
 			await processTranscription(userText);
@@ -36,9 +52,10 @@ const Chat = ({ navigation }) => {
 		} else if (command.includes('memory card')) {
 			response = playMemoryCardGame();
 		} else {
-			response = "Sorry, I didn't understand. Please say 'Word Association' or 'Memory Card'.";
+			response =
+				"Sorry, I didn't understand. Please say 'Word Association' or 'Memory Card'.";
 		}
-		
+
 		return response;
 	};
 
@@ -71,7 +88,10 @@ const Chat = ({ navigation }) => {
 					`Received response from EC2 backend: ${data.responseText}`
 				);
 
-				if (transcribedText.includes('word association') || transcribedText.includes('memory card')) {
+				if (
+					transcribedText.includes('word association') ||
+					transcribedText.includes('memory card')
+				) {
 					data.responseText = await handleCommand(transcribedText);
 				}
 
@@ -82,7 +102,11 @@ const Chat = ({ navigation }) => {
 					sender: 'assistant',
 				};
 
-				setMessages((prevMessages) => [...prevMessages, assistantMessage]);
+				setMessages((prevMessages) => [
+					...prevMessages,
+					assistantMessage,
+				]);
+				await incrementConversation(userId);
 			} else {
 				console.error(
 					'Failed to process transcription. Backend responded with:',
@@ -112,14 +136,19 @@ const Chat = ({ navigation }) => {
 		scrollToBottom();
 	}, [messages]);
 
-	const handleContentSizeChange = (height: NativeSyntheticEvent<TextInputContentSizeChangeEventData>) => {
+	const handleContentSizeChange = (
+		height: NativeSyntheticEvent<TextInputContentSizeChangeEventData>
+	) => {
 		const contentHeight = height.nativeEvent.contentSize.height;
 		setTextInputHeight(contentHeight);
 	};
 
 	return (
 		<View style={styles.container}>
-			<PageHeading title='Vita Assistant' handlePress={() => navigation.navigate('home')} />
+			<PageHeading
+				title='Vita Assistant'
+				handlePress={() => navigation.navigate('home')}
+			/>
 			<View style={styles.chatContainer}>
 				<View style={styles.iconWrapper}>
 					<Image
@@ -130,16 +159,18 @@ const Chat = ({ navigation }) => {
 				<ScrollView
 					style={styles.chatWrapper}
 					showsVerticalScrollIndicator={false}
-					ref={scrollViewRef}>
-
+					ref={scrollViewRef}
+				>
 					{messages.map((message) => (
 						<View
 							key={message.id}
 							style={[
 								styles.message,
-								message.sender === 'user' ? styles.userMessage : styles.assistantMessage,
-							]}>
-
+								message.sender === 'user'
+									? styles.userMessage
+									: styles.assistantMessage,
+							]}
+						>
 							<Text style={styles.text}>{message.text}</Text>
 						</View>
 					))}
@@ -148,15 +179,26 @@ const Chat = ({ navigation }) => {
 			<View style={styles.messageContainer}>
 				<View style={styles.messageWrapper}>
 					<TextInput
-						style={[styles.messageInput, { height: textInputHeight }]}
+						style={[
+							styles.messageInput,
+							{ height: textInputHeight },
+						]}
 						placeholder='Chat with Vita'
 						value={userText}
 						onChangeText={setUserText}
 						multiline={true}
 						onContentSizeChange={handleContentSizeChange}
-						textAlignVertical='top' />
-					<TouchableOpacity style={styles.submitIcon} onPress={handleSendMessage}>
-						<Ionicons name='navigate-outline' size={25} color='#ffffff' />
+						textAlignVertical='top'
+					/>
+					<TouchableOpacity
+						style={styles.submitIcon}
+						onPress={handleSendMessage}
+					>
+						<Ionicons
+							name='navigate-outline'
+							size={25}
+							color='#ffffff'
+						/>
 					</TouchableOpacity>
 				</View>
 			</View>

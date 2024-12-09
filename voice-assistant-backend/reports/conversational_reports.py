@@ -28,9 +28,9 @@ if not GROQ_API_KEY or not MONGODB_URI:
 class MongoDB:
     def __init__(self):
         try:
-            self.client = AsyncIOMotorClient(MONGODB_URI)
+            self.client = AsyncIOMotorClient(MONGODB_URI, tls=True,tlsAllowInvalidCertificates=True)
             self.db = self.client["VitaVoiceHealth"]
-            self.conversations = self.db["conversationsTest2"]
+            self.conversations = self.db["conversations"]
         except Exception as e:
             exit(1)
 
@@ -85,6 +85,11 @@ class ConversationSummarizer:
         return self.processor.process("Summarize the user's conversation.")
 
 def display_summary(summary):
+    # This prevents macOS quirks
+    if not hasattr(tk, "_default_root"):
+        tk._default_root = tk.Tk()
+        tk._default_root.withdraw()
+
     window = tk.Tk()
     window.title("Conversation Summary")
     text_area = scrolledtext.ScrolledText(window, wrap=tk.WORD, width=80, height=20)

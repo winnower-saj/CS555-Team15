@@ -14,6 +14,9 @@ import PasswordInput from './components/PasswordInput';
 import MediumButton from './components/MediumButton';
 import { Colors } from '../constants/Colors';
 import { isValidPhoneNumber } from 'libphonenumber-js';
+import * as ExpoNotifications from 'expo-notifications';
+import { registerForPushNotificationsAsync } from '../services/pushNotificationService';
+import { saveExpoPushTokenToBackend } from '../services/dbService';
 
 const Login = () => {
 	const router = useRouter();
@@ -101,6 +104,7 @@ const Login = () => {
 					lastName,
 					phoneNumber
 				);
+				await setupPushNotifications(userId);
 				while (router.canGoBack()) {
 					router.back();
 				}
@@ -123,6 +127,38 @@ const Login = () => {
 				error.response?.data || error.message
 			);
 		}
+	};
+
+	const setupPushNotifications = async (userId) => {
+		if (userId) {
+			const token = await registerForPushNotificationsAsync();
+			if (token) {
+				// console.log('Expo Push Token registered:', token);
+				// Example of sending token to backend
+				await saveExpoPushTokenToBackend(userId, token);
+			}
+		}
+
+		// Add notification listener
+		const notificationListener =
+			ExpoNotifications.addNotificationReceivedListener(
+				(notification) => {
+					setNotifications((prev) => [
+						...prev,
+						{
+							id: notification.request.identifier,
+							title: notification.request.content.title,
+							body: notification.request.content.body,
+						},
+					]);
+				}
+			);
+
+		return () => {
+			ExpoNotifications.removeNotificationSubscription(
+				notificationListener
+			);
+		};
 	};
 
 	return (

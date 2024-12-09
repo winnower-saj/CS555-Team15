@@ -1,22 +1,25 @@
 import express from 'express';
 const router = express.Router();
 import dotenv from 'dotenv';
-import { createAppointment } from '../helpers/dbHelpers.js';
+import {
+	createAppointment,
+	getExpoTokenByUserId,
+} from '../helpers/dbHelpers.js';
 import { scheduleReminders } from '../helpers/remindersHelper.js';
 
 dotenv.config();
 
 router.post('/appointments', async (req, res) => {
-	const { userId, title, details, time, expoPushToken } = req.body;
+	const { userId, title, details, time } = req.body;
 
 	try {
-		if (!userId || !title || !time || !expoPushToken) {
+		if (!userId || !title || !time) {
 			return res.status(400).json({ message: 'Missing required fields' });
 		}
 
 		// Save the reminder to the database
 		const reminder = await createAppointment(userId, title, details, time);
-		reminder.expoPushToken = expoPushToken;
+		reminder.expoPushToken = await getExpoTokenByUserId(userId);
 
 		// Schedule reminders with RabbitMQ
 		await scheduleReminders(reminder);

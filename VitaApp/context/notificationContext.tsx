@@ -1,11 +1,6 @@
-import React, {
-	createContext,
-	useContext,
-	useState,
-	ReactNode,
-	useEffect,
-} from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as Notifications from 'expo-notifications';
+import { useTTS } from './ttsContext';
 
 interface Notification {
 	id: string;
@@ -39,57 +34,87 @@ const initialNotifications: Notification[] = [
 	},
 ];
 
-export const NotificationProvider = ({ children }: { children: ReactNode }) => {
-	const [notifications, setNotifications] =
-		useState<Notification[]>(initialNotifications);
+export const NotificationProvider = ({ children }) => {
+	const [notifications, setNotifications] = useState(initialNotifications);
+	const { playTTS, isTTSActive } = useTTS();
+	const listenerAdded = React.useRef(false); // Track if the listener is already added
+	let lastNotificationId = null; // Track duplicate notifications
 
 	useEffect(() => {
-		const handleNotificationReceived = (
-			notification: Notifications.Notification
-		) => {
-			const newNotification: Notification = {
-				id: notification.request.identifier,
-				title: notification.request.content.title,
-				body: notification.request.content.body,
-				timestamp: new Date().toISOString(),
-			};
+		if (!listenerAdded.current) {
+			console.log('Adding notification listener');
+			listenerAdded.current = true;
 
-			setNotifications((prev) => {
-				const exists = prev.some((n) => n.id === newNotification.id);
-				if (!exists) {
-					return [...prev, newNotification]; // Add if unique
+			const listener = Notifications.addNotificationReceivedListener(
+				(notification) => {
+					// Prevent duplicate notifications
+					if (
+						lastNotificationId === notification.request.identifier
+					) {
+						console.log(
+							'Duplicate notification ignored:',
+							notification.request.identifier
+						);
+						return;
+					}
+					lastNotificationId = notification.request.identifier;
+
+					// Create a new notification
+					const newNotification = {
+						id: notification.request.identifier,
+						title: notification.request.content.title,
+						body: notification.request.content.body,
+						timestamp: new Date().toISOString(),
+					};
+
+					// Play TTS
+					if (
+						!isTTSActive /* &&
+						lastNotificationId !== notification.request.identifier */
+					) {
+						console.log(
+							'Playing TTS for notification:',
+							newNotification.body
+						);
+						playTTS(newNotification.body);
+					} else {
+						console.log(
+							'TTS already active, skipping this notification'
+						);
+					}
+
+					// Add the notification to the list
+					setNotifications((prev) => {
+						const exists = prev.some(
+							(n) => n.id === newNotification.id
+						);
+						if (!exists) {
+							return [...prev, newNotification];
+						}
+						return prev;
+					});
 				}
-				return prev;
-			});
-		};
-
-		// Add notification listener
-		const notificationListener =
-			Notifications.addNotificationReceivedListener(
-				handleNotificationReceived
 			);
 
-		// Cleanup listener on unmount
-		return () => {
-			Notifications.removeNotificationSubscription(notificationListener);
-		};
-	}, []);
-
-	// Clear all notifications
-	const clearNotifications = () => {
-		setNotifications([]);
-	};
+			// Cleanup listener on unmount
+			return () => {
+				console.log('Cleaning up notification listener');
+				Notifications.removeNotificationSubscription(listener);
+				listenerAdded.current = false;
+			};
+		}
+	}, [isTTSActive, playTTS]);
 
 	return (
 		<NotificationContext.Provider
-			value={{ notifications, setNotifications, clearNotifications }}
+			value={{ notifications, setNotifications }}
 		>
 			{children}
 		</NotificationContext.Provider>
 	);
 };
 
-export const useNotification = (): NotificationContextType => {
+export const useNotification = () => {
 	const context = useContext(NotificationContext);
 	if (!context) {
 		throw new Error(

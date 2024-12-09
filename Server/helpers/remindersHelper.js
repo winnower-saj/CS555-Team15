@@ -37,7 +37,7 @@ async function publishReminder(reminder, delayMs, notificationType) {
 	const reminderData = {
 		userId: reminder.userId,
 		title: reminder.title,
-		description: reminder.description,
+		details: reminder.details,
 		time: reminder.time,
 		expoPushToken: reminder.expoPushToken,
 		notificationType, // "day-before" or "three-hours"
@@ -78,10 +78,10 @@ export async function scheduleReminders(reminder) {
 	);
 
 	// For testing purposes, add a 30-second notification
-	const testNotificationDelay = 10 * 1000; // 30 seconds
+	// const testNotificationDelay = 30 * 1000; // 30 seconds
 
 	// Schedule notifications
-	// await publishReminder(reminder, dayBeforeDelay, 'day-before');
-	// await publishReminder(reminder, threeHoursDelay, 'three-hours');
-	await publishReminder(reminder, testNotificationDelay, 'test-notification');
+	await publishReminder(reminder, dayBeforeDelay, 'day-before');
+	await publishReminder(reminder, threeHoursDelay, 'three-hours');
+	// await publishReminder(reminder, testNotificationDelay, 'test-notification');
 }
