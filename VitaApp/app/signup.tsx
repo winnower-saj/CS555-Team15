@@ -30,6 +30,7 @@ const Signup = () => {
 		phoneNumber: false,
 		password: false,
 		confirmPassword: false,
+		mismatchPassword: false,
 	});
 	const [showModal, setShowModal] = useState(false);
 	const [userDetails, setUserDetails] = useState({
@@ -52,10 +53,11 @@ const Signup = () => {
 			phoneNumber: false,
 			password: false,
 			confirmPassword: false,
+			mismatchPassword: false,
 		};
 
 		const nameRegex = /^[a-zA-Z\s'-]+$/;
-		const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+		const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
 
 		if (!firstName || !nameRegex.test(firstName)) {
 			newErrors.firstName = true;
@@ -79,12 +81,7 @@ const Signup = () => {
 
 		if (!confirmPassword || confirmPassword !== password) {
 			newErrors.confirmPassword = true;
-			isValid = false;
-		}
-
-		if (password !== confirmPassword) {
-			newErrors.password = true;
-			newErrors.confirmPassword = true;
+			newErrors.mismatchPassword = true;
 			isValid = false;
 		}
 
@@ -130,8 +127,8 @@ const Signup = () => {
 					'\n\t\t\t\t\t• contains one special character';
 			}
 
-			if (newErrors.confirmPassword) {
-				errorMessage += '\n\t❌ Confirm password must match the' + '\n\t\t\t\t password';
+			if (newErrors.mismatchPassword) {
+				errorMessage += '\n\t❌ Passwords must match';
 			}
 
 			Alert.alert('⚠️ Signup Error',
@@ -213,7 +210,7 @@ const Signup = () => {
 				placeholder='First Name'
 				value={firstName}
 				onChangeText={setFirstName}
-				underlineColorAndroid="transparent"
+				underlineColorAndroid='transparent'
 			/>
 
 			<TextInput
@@ -221,7 +218,7 @@ const Signup = () => {
 				placeholder='Last Name'
 				value={lastName}
 				onChangeText={setLastName}
-				underlineColorAndroid="transparent"
+				underlineColorAndroid='transparent'
 			/>
 
 			<TextInput
@@ -230,14 +227,14 @@ const Signup = () => {
 				value={phoneNumber}
 				keyboardType='phone-pad'
 				onChangeText={setPhoneNumber}
-				underlineColorAndroid="transparent"
+				underlineColorAndroid='transparent'
 			/>
 
 			<PasswordInput
 				value={password}
 				placeholder='Password'
 				onChange={setPassword}
-				hasError={errors.password}
+				hasError={errors.password || errors.mismatchPassword}
 			/>
 
 			<PasswordInput

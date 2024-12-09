@@ -1,47 +1,102 @@
+import re
 import os
+import traceback
+from datetime import datetime
+from bson import ObjectId
 from dotenv import load_dotenv
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_groq import ChatGroq
-from langchain.memory import ConversationBufferMemory
-from langchain.prompts import (
-    ChatPromptTemplate,
-    MessagesPlaceholder,
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-)
-from langchain.chains import LLMChain
+from motor.motor_asyncio import AsyncIOMotorClient
+from transformers import pipeline
+from mistralai import Mistral
+from langchain.schema import HumanMessage, AIMessage
+from app.config.db_connection import mongo_instance
 
 load_dotenv()
-GROQ_API_KEY = os.getenv('GROQ_API_KEY')
+MISTRAL_API_KEY = os.getenv('MISTRAL_API_KEY')
+if not MISTRAL_API_KEY:
+    raise ValueError("Missing MISTRAL_API_KEY")
 
 class VoiceAssistantLLM:
     def __init__(self):
-        self.llm = ChatGroq(temperature=0, model_name="mixtral-8x7b-32768", groq_api_key=GROQ_API_KEY)
-        self.memory = ConversationBufferMemory(memory_key="conversation_history", return_messages=True)
+        try:
+            self.conversations = mongo_instance.conversations
+        except Exception as db_error:
+            raise
+        self.llm_client = Mistral(api_key=MISTRAL_API_KEY)
+        self.model_name = "open-mistral-nemo"
+        self.emotion_classifier = pipeline("text-classification", model="michellejieli/emotion_text_classifier")
 
-        # Define the system prompt for the assistant
-        assistant_prompt = 'You are a voice assistant. Have good conversations with the user and provide companionship. Keep your answers short and concise.'
-        
-        # prompt template 
-        self.prompt_template = ChatPromptTemplate.from_messages([
-            SystemMessagePromptTemplate.from_template(assistant_prompt),
-            MessagesPlaceholder(variable_name="conversation_history"),
-            HumanMessagePromptTemplate.from_template("{input_text}")
-        ])
+    async def fetch_user_conversation(self, user_id: str):
+        try:
+            conversation = await self.conversations.find_one({"userId": ObjectId(user_id)})
+            messages = []
+            if conversation:
+                for msg in conversation.get("messages", []):
+                    messages.append(HumanMessage(content=msg["userText"]))
+                    messages.append(AIMessage(content=msg["assistantText"]))
+            return messages
+        except Exception as e:
+            raise
 
-        # Set up the conversation chain
-        self.conversation_chain = LLMChain(
-            llm=self.llm,
-            prompt=self.prompt_template,
-            memory=self.memory
-        )
+    async def save_conversation(self, user_id: str, user_text: str, assistant_text: str, emotion: str):
+        try:
+            message = {
+                "userText": user_text,
+                "assistantText": assistant_text,
+                "emotion": emotion,
+            }
+            await self.conversations.update_one(
+                {"userId": ObjectId(user_id)},
+                {
+                    "$push": {"messages": message},
+                    "$set": {"updatedAt": datetime.now()},
+                    "$setOnInsert": {"createdAt": datetime.now()},
+                },
+                upsert=True,
+            )
+        except Exception as e:
+            raise
 
-    def generate_response(self, user_input):
-        self.memory.chat_memory.add_user_message(user_input) 
+    def filter_emojis(self, text: str) -> str:
+        return re.sub(r'[^\w\s,.!?]', '', text)
 
-        response = self.conversation_chain.invoke({"input_text": user_input})
+    async def detect_emotion(self, text: str) -> str:
+        try:
+            result = self.emotion_classifier(text)
+            if result and isinstance(result, list):
+                return result[0]['label']
+            return "neutral"
+        except Exception as e:
+            return "neutral"
 
-        self.memory.chat_memory.add_ai_message(response['text']) 
+    async def generate_response(self, user_id: str, user_input: str) -> str:
+        if not user_input.strip():
+            return "I'm sorry, I didn't quite get you, could you please repeat that?"
 
-        print(f"LLM response: {response['text']}")
-        return response['text']
+        try:
+            conversation_history = await self.fetch_user_conversation(user_id)
+            formatted_history = "\n".join(
+                [f"User: {msg.content}" if isinstance(msg, HumanMessage) else f"Assistant: {msg.content}" for msg in conversation_history]
+            )
+            full_prompt = (
+                "You are a voice assistant. Have good conversations with the user and provide companionship. "
+                "Dont start response with the word assistant "
+                f"Keep your answers short and concise.\nConversation History:\n{formatted_history}\nUser Input: {user_input}"
+            )
+
+            response = self.llm_client.chat.complete(
+                model=self.model_name,
+                messages=[{"role": "user", "content": full_prompt}],
+                temperature=0.0
+            )
+            assistant_response = response.choices[0].message.content.strip()
+
+            if not assistant_response:
+                raise ValueError("LLM returned an empty response.")
+
+            assistant_response = self.filter_emojis(assistant_response)
+            emotion = await self.detect_emotion(user_input)
+            await self.save_conversation(user_id, user_input, assistant_response, emotion)
+            return assistant_response
+
+        except Exception as e:
+            return "Sorry, something went wrong while generating a response. Please try again later."

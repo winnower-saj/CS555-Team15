@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import Voice from './voice';
+import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '../constants/Colors';
 
 const Home = ({ navigation, route }) => {
 	const { user } = route.params;
@@ -41,22 +43,19 @@ const Home = ({ navigation, route }) => {
 				<View style={styles.navigation}>
 					<TouchableOpacity
 						style={styles.iconContainer}
-						onPress={() => navigation.navigate('profile')}
-					>
-						<Image
-							source={require('../assets/images/profile.png')}
-							style={styles.icon}
-						/>
-						<Text style={styles.iconText}>Profile</Text>
+						onPress={() => navigation.navigate('profile')}>
+
+						<Image source={require('../assets/images/user-small.png')} />
+						<Text style={styles.iconText}>My Profile</Text>
 					</TouchableOpacity>
+
 					<TouchableOpacity
 						style={styles.iconContainer}
-						onPress={() => navigation.navigate('notifications')}
-					>
-						<Image
-							source={require('../assets/images/notifications.png')}
-							style={styles.icon}
-						/>
+						onPress={() => navigation.navigate('notifications')}>
+
+						<View style={styles.icon}>
+							<Ionicons name='notifications' size={30} color='#FFFFFF' />
+						</View>
 						<Text style={styles.iconText}>Notifications</Text>
 					</TouchableOpacity>
 				</View>
@@ -68,9 +67,16 @@ const Home = ({ navigation, route }) => {
 							style={styles.userName}
 						>{`${user.firstName} ${user.lastName}`}</Text>
 					</View>
-					<Voice />
-					<Text style={styles.assistantText}>Tap to Vita</Text>
+
+					<View style={styles.vitaTap}>
+						<Text style={styles.tapText}>Tap to Vita</Text>
+						<Voice></Voice>
+					</View>
 				</View>
+
+				<TouchableOpacity style={styles.chatButton} onPress={() => navigation.navigate('chat')}>
+					<Text style={styles.chatText}>Chat</Text>
+				</TouchableOpacity>
 			</View>
 		</PanGestureHandler>
 	);
@@ -79,61 +85,79 @@ const Home = ({ navigation, route }) => {
 const styles = StyleSheet.create({
 	container: {
 		display: 'flex',
-		flexDirection: 'column',
 		flex: 1,
-		padding: 24,
+		flexDirection: 'column',
+		padding: '5%',
 	},
 	navigation: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
-		paddingVertical: 36,
+		paddingVertical: '8%',
 	},
 	iconContainer: {
 		alignItems: 'center',
 	},
 	icon: {
-		width: 30,
-		height: 30,
-		backgroundColor: '#0077B6',
+		width: 60,
+		height: 60,
+		alignItems: 'center',
+		justifyContent: 'center',
+		backgroundColor: Colors.blue.primary,
 		borderRadius: 50,
+		marginRight: '6%',
 	},
 	iconText: {
-		marginTop: 5,
-		fontSize: 16,
-		fontWeight: 'bold',
-		color: '#0077B6',
+		fontSize: 20,
+		fontWeight: '600',
+		color: Colors.blue.primary,
+		marginTop: '5%',
 	},
 	assistantContainer: {
-		flex: 1,
 		display: 'flex',
+		flex: 1,
 		flexDirection: 'column',
 		alignItems: 'center',
 		justifyContent: 'center',
-		position: 'relative',
 	},
 	greetingContainer: {
 		position: 'absolute',
-		top: 60,
+		top: '6%',
 	},
 	greeting: {
-		color: '#000000',
 		fontSize: 24,
 		fontWeight: 'medium',
+		color: '#000000',
 		textAlign: 'center',
 	},
 	userName: {
-		color: '#0077B6',
 		fontSize: 32,
-		fontWeight: 'semibold',
+		fontWeight: '600',
 		textAlign: 'center',
-		marginTop: 16,
+		color: Colors.blue.primary,
+		marginTop: '5%',
 	},
-	assistantText: {
-		marginTop: 20,
+	vitaTap: {
+		marginTop: '30%'
+	},
+	tapText: {
 		fontSize: 32,
+		fontWeight: '600',
 		color: '#000000',
-		fontWeight: 'semibold',
+		marginBottom: '5%',
 	},
+	chatButton: {
+		alignSelf: 'center',
+		backgroundColor: Colors.blue.dark,
+		paddingVertical: '2%',
+		paddingHorizontal: '12%',
+		borderRadius: 50,
+	},
+	chatText: {
+		fontSize: 24,
+		fontWeight: '600',
+		color: '#ffffff',
+		textAlign: 'center'
+	}
 });
 
 export default Home;

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SplashScreen from 'expo-splash-screen';
+import * as ExpoNotifications from 'expo-notifications';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useRouter } from 'expo-router';
@@ -9,7 +10,12 @@ import { Asset } from 'expo-asset';
 import { useFonts } from 'expo-font';
 import AppIntroduction from './components/AppIntroduction';
 import { AuthProvider, useAuth } from '../context/authContext';
+import {
+	NotificationProvider,
+	useNotification,
+} from '../context/notificationContext';
 import { getUserSession } from '../services/authService';
+import { registerForPushNotificationsAsync } from '../services/pushNotificationService';
 import LoginSignUp from './index';
 import Login from './login';
 import SignUp from './signup';
@@ -21,6 +27,11 @@ import PrivacyPolicy from './privacypolicy';
 import PasswordManager from './passwordmanager';
 import Settings from './settings';
 import SoundAndVibration from './soundandvibration';
+import MyProfile from './my-profile';
+import { saveExpoPushTokenToBackend } from '../services/dbService';
+import Chat from './chat';
+import RewardScreen from './rewards';
+import { TTSProvider } from '../context/ttsContext';
 
 const Drawer = createDrawerNavigator();
 const AuthStack = createStackNavigator();
@@ -37,6 +48,7 @@ const RootLayoutContent = () => {
 	const [appState, setAppState] = useState(AppState.currentState);
 	const router = useRouter();
 	const { login, user } = useAuth();
+	const { setNotifications } = useNotification();
 	const [isAppReady, setIsAppReady] = useState(false);
 	const [isLoadDataComplete, setIsLoadDataComplete] = useState(false);
 	const [hasOpenedAppBefore, setHasOpenedAppBefore] = useState(false);
@@ -77,6 +89,8 @@ const RootLayoutContent = () => {
 				session.lastName,
 				session.phoneNumber
 			);
+
+			await setupPushNotifications(session.userId);
 		}
 	};
 
@@ -102,6 +116,38 @@ const RootLayoutContent = () => {
 		} catch (e) {
 			console.warn(e);
 		}
+	};
+
+	const setupPushNotifications = async (userId) => {
+		if (userId) {
+			const token = await registerForPushNotificationsAsync();
+			if (token) {
+				// console.log('Expo Push Token registered:', token);
+				// Example of sending token to backend
+				await saveExpoPushTokenToBackend(userId, token);
+			}
+		}
+
+		// Add notification listener
+		const notificationListener =
+			ExpoNotifications.addNotificationReceivedListener(
+				(notification) => {
+					setNotifications((prev) => [
+						...prev,
+						{
+							id: notification.request.identifier,
+							title: notification.request.content.title,
+							body: notification.request.content.body,
+						},
+					]);
+				}
+			);
+
+		return () => {
+			ExpoNotifications.removeNotificationSubscription(
+				notificationListener
+			);
+		};
 	};
 
 	useEffect(() => {
@@ -209,13 +255,35 @@ const RootLayoutContent = () => {
 				options={{ headerShown: false }}
 				initialParams={{ user }}
 			/>
+			<Drawer.Screen
+				name='my-profile'
+				component={MyProfile}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='rewards'
+				component={RewardScreen}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
+			<Drawer.Screen
+				name='chat'
+				component={Chat}
+				options={{ headerShown: false }}
+				initialParams={{ user }}
+			/>
 		</Drawer.Navigator>
 	);
 };
 
 const RootLayout = () => (
 	<AuthProvider>
-		<RootLayoutContent />
+		<TTSProvider>
+			<NotificationProvider>
+				<RootLayoutContent />
+			</NotificationProvider>
+		</TTSProvider>
 	</AuthProvider>
 );
 

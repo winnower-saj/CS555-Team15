@@ -1,28 +1,62 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { isValidPhoneNumber } from 'libphonenumber-js';
 
 const userSchema = new mongoose.Schema(
 	{
 		firstName: {
 			type: String,
-			required: true,
+			required: [true, 'First name is required'],
 			trim: true,
+			minLength: [2, 'First name must be at least 2 characters long'],
+			match: [/^[a-zA-Z]+$/, 'First name can only contain letters'],
 		},
 		lastName: {
 			type: String,
-			required: true,
+			required: [true, 'Last name is required'],
 			trim: true,
+			minLength: [2, 'Last name must be at least 2 characters long'],
+			match: [/^[a-zA-Z]+$/, 'Last name can only contain letters'],
 		},
 		phoneNumber: {
 			type: String,
-			required: true,
+			required: [true, 'Phone number is required'],
 			unique: true,
-			match: [/^\d{10}$/, 'Phone number must be 10 digits'],
+			validate: {
+				validator: function (phoneNumber) {
+					return isValidPhoneNumber(phoneNumber, 'US');
+				},
+				message: 'Please provide a valid phone number',
+			},
 		},
 		password: {
 			type: String,
-			required: true,
+			required: [true, 'Password is required'],
+			minLength: [8, 'Password must be at least 8 characters long'],
+			validate: {
+				validator: function (password) {
+					const passwordRegex =
+						/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+					if (this.isModified('password')) {
+						return passwordRegex.test(password);
+					}
+
+					return true;
+				},
+				message:
+					'Password must be at least 8 characters long ' +
+					'and contain a mix of uppercase, lowercase, numbers, and special characters',
+			},
 		},
+		conversationCount: {
+			type: Number,
+			default: 0, // Tracks the total number of conversations done
+		},
+		medicationCount: {
+			type: Number,
+			default: 0, // Tracks the total number of conversations done
+		},
+		expoPushToken: { type: String },
 	},
 	{ timestamps: true }
 );
@@ -44,4 +78,5 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
 	return bcrypt.compare(enteredPassword, this.password);
 };
 
-export default mongoose.model('User', userSchema);
+export const UserModel = (userDatabase) =>
+	userDatabase.model('User', userSchema);

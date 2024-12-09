@@ -9,6 +9,12 @@ import {
 	findRefreshToken,
 	deleteRefreshToken,
 	updateUserPassword,
+	updateUserProfile,
+	updateUserExpoToken,
+	getConversationCount,
+	getMedicationCount,
+	incrementConversationCount,
+	incrementMedicationCount,
 } from '../helpers/dbHelpers.js';
 const router = express.Router();
 import dotenv from 'dotenv';
@@ -159,24 +165,30 @@ router.delete('/delete', async (req, res) => {
 	}
 });
 
-// Delete user route
-router.delete('/delete', async (req, res) => {
-	const { userId, token } = req.body;
+// Update user route
+router.patch('/update-profile', async (req, res) => {
+	const { userId, firstName, lastName, phoneNumber } = req.body;
 
 	try {
-		const user = await findUserByPhoneNumber(userId);
+		const user = await findUserById(userId);
 
 		if (!user) {
 			return res.status(404).json({ message: 'User not found' });
 		}
 
-		await deleteUser(userId);
-		await deleteRefreshToken(token);
+		const updatedUser = await updateUserProfile(
+			userId,
+			firstName,
+			lastName,
+			phoneNumber
+		);
 
-		res.status(204).send();
+		res.status(200).json(updatedUser);
 	} catch (error) {
-		console.error('Error during user deletion', error.message);
-		res.status(500).json({ message: 'Server error during user deletion' });
+		console.error('Error during user profile update', error.message);
+		return res
+			.status(500)
+			.json({ message: 'Server error during user profile update' });
 	}
 });
 
@@ -202,6 +214,30 @@ router.patch('/update-password', async (req, res) => {
 	}
 });
 
+// Update expoPushToken route
+router.post('/save-token', async (req, res) => {
+	const { userId, expoPushToken } = req.body;
+
+	if (!userId || !expoPushToken) {
+		return res
+			.status(400)
+			.json({ message: 'userId and expoPushToken are required' });
+	}
+
+	try {
+		// Find the user and update or create the record
+		const user = await updateUserExpoToken(userId, expoPushToken);
+
+		res.status(200).json({
+			message: 'Push token saved successfully',
+			user,
+		});
+	} catch (error) {
+		console.error('Error saving push token:', error.message, error);
+		res.status(500).json({ message: 'Server error', error: error.message });
+	}
+});
+
 // Helper functions for generating tokens
 function generateAccessToken(userId) {
 	return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '15m' });
@@ -220,5 +256,72 @@ async function createRefreshToken(userId) {
 
 	return refreshToken;
 }
+
+//get counts for medication and conversation
+router.get('/medication-count/:userId', async (req, res) => {
+	const userId = req.params.userId;
+	try {
+		const medicationCount = await getMedicationCount(userId);
+		return res.status(200).json({ medicationCount });
+	} catch (error) {
+		console.error('Error fetching medication count:', error.message);
+		return res
+			.status(500)
+			.json({ message: 'Server error fetching medication count' });
+	}
+});
+
+router.get('/conversation-count/:userId', async (req, res) => {
+	const userId = req.params.userId;
+
+	try {
+		const conversationCount = await getConversationCount(userId);
+		return res.status(200).json({ conversationCount });
+	} catch (error) {
+		console.error('Error fetching conversation count:', error.message);
+		return res
+			.status(500)
+			.json({ message: 'Server error fetching conversation count' });
+	}
+});
+
+router.post('/increment-conversation/:userId', async (req, res) => {
+	const userId = req.params.userId;
+
+	try {
+		const updatedCount = await incrementConversationCount(userId);
+		return res
+			.status(200)
+			.json({
+				message: 'Conversation count incremented',
+				count: updatedCount,
+			});
+	} catch (error) {
+		console.error('Error incrementing conversation count:', error.message);
+		return res
+			.status(500)
+			.json({ message: 'Server error incrementing conversation count' });
+	}
+});
+
+// Route to increment medication count
+router.post('/increment-medication/:userId', async (req, res) => {
+	const userId = req.params.userId;
+
+	try {
+		const updatedCount = await incrementMedicationCount(userId);
+		return res
+			.status(200)
+			.json({
+				message: 'Medication count incremented',
+				count: updatedCount,
+			});
+	} catch (error) {
+		console.error('Error incrementing medication count:', error.message);
+		return res
+			.status(500)
+			.json({ message: 'Server error incrementing medication count' });
+	}
+});
 
 export default router;
